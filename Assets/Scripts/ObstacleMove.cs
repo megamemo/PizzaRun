@@ -28,7 +28,7 @@ public class ObstacleMove : MonoBehaviour
 
     float SpeedLevel()
     {
-        float newSpeed = speed + speed * gameManager.levelCurrent / speedMultiplier;
+        float newSpeed = speed + speed * (gameManager.levelCurrent - 1) / speedMultiplier;
 
         return newSpeed;
     }

@@ -11,28 +11,33 @@ using UnityEditor;
 public class MainUI : MonoBehaviour
 {
     [SerializeField] GameObject pauseMenu;
+    [SerializeField] GameObject gameOverText;
+    [SerializeField] GameObject gameOverMenu;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void PauseMenu()
     {
         if (pauseMenu.activeSelf)
-        pauseMenu.SetActive(false);
-        else pauseMenu.SetActive(true);
+        {
+            Time.timeScale = 1;
+            pauseMenu.SetActive(false);
+        }
+        else
+        {
+            Time.timeScale = 0;
+            pauseMenu.SetActive(true);
+        }
+    }
+
+    public void Continue()
+    {
+        gameOverText.SetActive(false);
+        gameOverMenu.SetActive(true);
     }
 
     public void ResumeGame()
     {
+        Time.timeScale = 1;
         pauseMenu.SetActive(false);
     }
 

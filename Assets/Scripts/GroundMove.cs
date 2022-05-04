@@ -30,9 +30,8 @@ public class GroundMove : MonoBehaviour
 
     float SpeedLevel()
     {
-        float newSpeed = speed + speed * gameManager.levelCurrent / speedMultiplier;
+        float newSpeed = speed + speed * (gameManager.levelCurrent - 1) / speedMultiplier;
 
-        Debug.Log("Ground speed" + newSpeed);
         return newSpeed;
     }
 }

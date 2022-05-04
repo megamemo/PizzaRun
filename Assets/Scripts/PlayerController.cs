@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,10 +14,13 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRb;
     public GameObject spawnObject;
     private SpawnManager spawnManager;
+    public GameObject gameManagerObject;
+    private GameManager gameManager;
     [SerializeField] private GameObject health1;
     [SerializeField] private GameObject health2;
     [SerializeField] private GameObject health3;
-    [SerializeField] private TextMeshProUGUI gameOverText;
+    [SerializeField] private GameObject gameOverText;
+    [SerializeField] private Button pauseButton; 
     [SerializeField] private GameObject damageLight;
     [SerializeField] private GameObject HealthLight;
 
@@ -25,10 +29,11 @@ public class PlayerController : MonoBehaviour
     {
         playerRb = GetComponent<Rigidbody>();
         spawnManager = spawnObject.GetComponent<SpawnManager>();
+        gameManager = gameManagerObject.GetComponent<GameManager>();
         playerHealth = 3;
         HealthUpdate();
         gameOverText.gameObject.SetActive(false);
-        damageLight.gameObject.SetActive(false);
+        pauseButton.gameObject.SetActive(true);
     }
 
     void FixedUpdate()
@@ -77,7 +82,6 @@ public class PlayerController : MonoBehaviour
                 Invoke("DamageLightOff", 0.75f);
                 playerHealth--;
                 HealthUpdate();
-                Debug.Log("Player has collided with enemy");
             }
         }
     }
@@ -140,8 +144,9 @@ public class PlayerController : MonoBehaviour
 
     private void GameOver()
     {
-        Debug.Log("Game Over!");
+        gameManager.gameStopped = true;
         speed = 0;
         gameOverText.gameObject.SetActive(true);
+        pauseButton.gameObject.SetActive(false);
     }
 }

@@ -30,9 +30,8 @@ public class EnemyMove : MonoBehaviour
 
     float SpeedLevel()
     {
-        float newSpeed = speed + speed * gameManager.levelCurrent / speedMultiplier;
+        float newSpeed = speed + speed * (gameManager.levelCurrent - 1) / speedMultiplier;
         
-        Debug.Log("Enemy Speed" + newSpeed);
         return newSpeed;
     }
 }
