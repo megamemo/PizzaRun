@@ -18,7 +18,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject health2;
     [SerializeField] private GameObject health3;
     [SerializeField] private GameObject damageLight;
-    [SerializeField] private GameObject HealthLight;
+    [SerializeField] private GameObject healthLight;
+    [SerializeField] private AudioSource healthSound;
+    [SerializeField] private AudioSource damageSound;
 
 
     void Awake()
@@ -74,6 +76,7 @@ public class PlayerController : MonoBehaviour
                 damageLight.gameObject.SetActive(true);
                 Invoke("DamageLightOff", 0.75f);
                 playerHealth--;
+                damageSound.Play();
                 HealthUpdate();
             }
         }
@@ -86,7 +89,8 @@ public class PlayerController : MonoBehaviour
             if (playerHealth < 3)
             {
                 playerHealth++;
-                HealthLight.gameObject.SetActive(true);
+                healthSound.Play();
+                healthLight.gameObject.SetActive(true);
                 Invoke("HealthLightOff", 0.75f);
             }
 
@@ -133,6 +137,6 @@ public class PlayerController : MonoBehaviour
 
     private void HealthLightOff()
     {
-        HealthLight.gameObject.SetActive(false);
+        healthLight.gameObject.SetActive(false);
     }
 }

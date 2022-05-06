@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     public int levelCurrent = 1;
     public float playTime;
-    public float levelTime = 10.0f;
+    public float levelTime = 30.0f;
     public bool gameStopped;
 
     [SerializeField] private TextMeshProUGUI levelText;
@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button pauseButton;
     [SerializeField] private TextMeshProUGUI bestScoreText;
     [SerializeField] private TextMeshProUGUI yourScoreText;
+
+    public AudioSource gameMusic;
+    [SerializeField] private AudioSource gameOverSound;
 
 
     void Awake()
@@ -51,6 +54,8 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        gameMusic.Stop();
+        gameOverSound.Play();
         gameStopped = true;
         gameOverText.gameObject.SetActive(true);
         pauseButton.gameObject.SetActive(false);

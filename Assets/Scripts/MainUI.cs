@@ -14,6 +14,10 @@ public class MainUI : MonoBehaviour
     [SerializeField] GameObject gameOverText;
     [SerializeField] GameObject gameOverMenu;
 
+    [SerializeField] private AudioSource menuSound;
+    [SerializeField] private AudioSource exitSound;
+
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -24,28 +28,35 @@ public class MainUI : MonoBehaviour
 
     public void PauseMenu()
     {
+        MenuSound();
+
         if (pauseMenu.activeSelf)
         {
             Time.timeScale = 1;
             pauseMenu.SetActive(false);
+            GameManager.instance.gameMusic.UnPause();
         }
         else
         {
             Time.timeScale = 0;
             pauseMenu.SetActive(true);
+            GameManager.instance.gameMusic.Pause();
         }
     }
 
     public void Continue()
     {
+        MenuSound();
         gameOverText.SetActive(false);
         gameOverMenu.SetActive(true);
     }
 
     public void ResumeGame()
     {
+        MenuSound();
         Time.timeScale = 1;
         pauseMenu.SetActive(false);
+        GameManager.instance.gameMusic.UnPause();
     }
 
     public void RestartGame()
@@ -55,15 +66,23 @@ public class MainUI : MonoBehaviour
 
     public void ToMenu()
     {
+        MenuSound();
         SceneManager.LoadScene(0);
     }
 
     public void ExitGame()
     {
+        exitSound.Play();
+
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
         Application.Quit();
 #endif
+    }
+
+    private void MenuSound()
+    {
+        menuSound.Play();
     }
 }

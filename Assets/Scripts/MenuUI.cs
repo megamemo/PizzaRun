@@ -16,6 +16,9 @@ public class MenuUI : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject scores;
 
+    [SerializeField] private AudioSource menuSound;
+    [SerializeField] private AudioSource exitSound;
+
 
     private void Update()
     {
@@ -32,6 +35,7 @@ public class MenuUI : MonoBehaviour
 
     public void Scores()
     {
+        MenuSound();
         mainMenu.SetActive(false);
 
         for (int i = 0; i < ScoreData.instance.scoreArrayLenght; i++)
@@ -44,6 +48,8 @@ public class MenuUI : MonoBehaviour
 
     public void ExitGame()
     {
+        exitSound.Play();
+
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
@@ -53,7 +59,13 @@ public class MenuUI : MonoBehaviour
 
     public void BackToMenu()
     {
+        MenuSound();
         scores.SetActive(false);
         mainMenu.SetActive(true);
+    }
+
+    private void MenuSound()
+    {
+        menuSound.Play();
     }
 }
