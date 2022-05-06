@@ -14,6 +14,13 @@ public class MainUI : MonoBehaviour
     [SerializeField] GameObject gameOverText;
     [SerializeField] GameObject gameOverMenu;
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            PauseMenu();
+        }
+    }
 
     public void PauseMenu()
     {

@@ -14,13 +14,9 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRb;
     public GameObject spawnObject;
     private SpawnManager spawnManager;
-    public GameObject gameManagerObject;
-    private GameManager gameManager;
     [SerializeField] private GameObject health1;
     [SerializeField] private GameObject health2;
     [SerializeField] private GameObject health3;
-    [SerializeField] private GameObject gameOverText;
-    [SerializeField] private Button pauseButton; 
     [SerializeField] private GameObject damageLight;
     [SerializeField] private GameObject HealthLight;
 
@@ -29,11 +25,8 @@ public class PlayerController : MonoBehaviour
     {
         playerRb = GetComponent<Rigidbody>();
         spawnManager = spawnObject.GetComponent<SpawnManager>();
-        gameManager = gameManagerObject.GetComponent<GameManager>();
         playerHealth = 3;
         HealthUpdate();
-        gameOverText.gameObject.SetActive(false);
-        pauseButton.gameObject.SetActive(true);
     }
 
     void FixedUpdate()
@@ -128,7 +121,8 @@ public class PlayerController : MonoBehaviour
             health1.gameObject.SetActive(false);
             health2.gameObject.SetActive(false);
             health3.gameObject.SetActive(false);
-            GameOver();
+            GameManager.instance.GameOver();
+            speed = 0;
         }
     }
 
@@ -140,13 +134,5 @@ public class PlayerController : MonoBehaviour
     private void HealthLightOff()
     {
         HealthLight.gameObject.SetActive(false);
-    }
-
-    private void GameOver()
-    {
-        gameManager.gameStopped = true;
-        speed = 0;
-        gameOverText.gameObject.SetActive(true);
-        pauseButton.gameObject.SetActive(false);
     }
 }
