@@ -8,13 +8,6 @@ public class GroundMove : MonoBehaviour
     private int speedMultiplier = 5;
     private int startPos = 50;
 
-    [SerializeField] GameObject gameManagerObject;
-    private GameManager gameManager;
-
-    void Awake()
-    {
-        gameManager = gameManagerObject.GetComponent<GameManager>();
-    }
 
     void FixedUpdate()
     {
@@ -30,7 +23,7 @@ public class GroundMove : MonoBehaviour
 
     float SpeedLevel()
     {
-        float newSpeed = speed + speed * (gameManager.levelCurrent - 1) / speedMultiplier;
+        float newSpeed = speed + speed * (GameManager.instance.levelCurrent - 1) / speedMultiplier;
 
         return newSpeed;
     }

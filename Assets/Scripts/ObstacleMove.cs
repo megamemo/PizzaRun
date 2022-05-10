@@ -8,13 +8,6 @@ public class ObstacleMove : MonoBehaviour
     private int speedMultiplier = 5;
     private int zDestroy = -10;
 
-    private GameManager gameManager;
-
-
-    void Awake()
-    {
-        gameManager = FindObjectOfType<GameManager>();
-    }
 
     void FixedUpdate()
     {
@@ -28,7 +21,7 @@ public class ObstacleMove : MonoBehaviour
 
     float SpeedLevel()
     {
-        float newSpeed = speed + speed * (gameManager.levelCurrent - 1) / speedMultiplier;
+        float newSpeed = speed + speed * (GameManager.instance.levelCurrent - 1) / speedMultiplier;
 
         return newSpeed;
     }

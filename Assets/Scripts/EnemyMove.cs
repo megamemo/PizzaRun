@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMove : MonoBehaviour
@@ -9,13 +7,11 @@ public class EnemyMove : MonoBehaviour
     private int zDestroy = -10;
 
     private Rigidbody objectRb;
-    private GameManager gameManager;
 
     
     void Awake()
     {
         objectRb = GetComponent<Rigidbody>();
-        gameManager = FindObjectOfType<GameManager>();
     }
 
     void FixedUpdate()
@@ -30,7 +26,7 @@ public class EnemyMove : MonoBehaviour
 
     float SpeedLevel()
     {
-        float newSpeed = speed + speed * (gameManager.levelCurrent - 1) / speedMultiplier;
+        float newSpeed = speed + speed * (GameManager.instance.levelCurrent - 1) / speedMultiplier;
         
         return newSpeed;
     }

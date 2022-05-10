@@ -19,7 +19,12 @@ public class SpawnManager : MonoBehaviour
     private int startTimeEnemy = 2;
     private int startTimeObstacle = 3;
     private int startTimePowerup = 15;
-    private int repeatTimeEnemy = 3;
+
+    private float repeatTimeEnemy = 3.0f;
+    private float repeatTimeEnemyNew;
+    private float repeatTimeEnemyMin = 0.5f;
+    private int repeatTimeEnemyMultipliler = 15;
+
     private int repeatTimeObstacle = 10;
     private int repeatTimePowerup = 20;
     [HideInInspector] public int currentPowerupCount;
@@ -29,9 +34,16 @@ public class SpawnManager : MonoBehaviour
     void Awake()
     {
         currentPowerupCount = 1;
-        InvokeRepeating("SpawnRandomEnemy", startTimeEnemy, repeatTimeEnemy);
+        //InvokeRepeating("SpawnRandomEnemy", startTimeEnemy, repeatTimeEnemy);
+        Invoke("SpawnRandomEnemy", startTimeEnemy);
+        StartCoroutine(SpawnRepeatEnemy());
         InvokeRepeating("SpawnRandomObstacle", startTimeObstacle, repeatTimeObstacle);
         InvokeRepeating("SpawnPowerup", startTimePowerup, repeatTimePowerup);
+    }
+
+    private void FixedUpdate()
+    {
+        RepeatEnemy();
     }
 
     void SpawnRandomEnemy()
@@ -41,6 +53,22 @@ public class SpawnManager : MonoBehaviour
         Vector3 randomPos = new Vector3(xRandomPos, yEnemyPos, zEnemyPos);
 
         Instantiate(enemies[randomEnemy], randomPos, enemies[randomEnemy].gameObject.transform.rotation);
+    }
+
+    private IEnumerator SpawnRepeatEnemy()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(repeatTimeEnemyNew);
+                SpawnRandomEnemy();
+        }
+    }
+
+    private void RepeatEnemy()
+    {
+        repeatTimeEnemyNew = repeatTimeEnemy - repeatTimeEnemy * (GameManager.instance.levelCurrent - 1) / repeatTimeEnemyMultipliler;
+        if (repeatTimeEnemyNew < repeatTimeEnemyMin)
+            repeatTimeEnemyNew = repeatTimeEnemyMin;
     }
 
     void SpawnRandomObstacle()
