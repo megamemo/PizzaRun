@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -18,29 +16,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button pauseButton;
     [SerializeField] private TextMeshProUGUI bestScoreText;
     [SerializeField] private TextMeshProUGUI yourScoreText;
-
     public AudioSource gameMusic;
     [SerializeField] private AudioSource gameOverSound;
 
 
-    void Awake()
+    private void Awake()
     {
         instance = this;
         Time.timeScale = 1;
         gameOverText.gameObject.SetActive(false);
         pauseButton.gameObject.SetActive(true);
-
         levelText.text = "LEVEL " + (levelCurrent);
-
         InvokeRepeating("NextLevel", levelTime, levelTime);
     }
 
     private void FixedUpdate()
     {
         if (!gameStopped)
-        {
             playTime += Time.fixedDeltaTime;
-        }
     }
 
     private void NextLevel()
@@ -66,14 +59,11 @@ public class GameManager : MonoBehaviour
     private void GameOverScore()
     {
         if (ScoreData.instance.isBestScore)
-        {
             bestScoreText.text = "NEW RECORD !";
-        }
         else
-        {
             bestScoreText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
-        }
 
         yourScoreText.text = "Your Score: " + (int)Math.Floor(playTime) + " sec, " + levelCurrent + " lvl";
     }
+
 }

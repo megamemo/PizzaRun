@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,20 +9,16 @@ using UnityEditor;
 public class MenuUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI[] scoreTexts;
-
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject scores;
-
     [SerializeField] private AudioSource menuSound;
     [SerializeField] private AudioSource exitSound;
 
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
             BackToMenu();
-        }
     }
 
     public void StartGame()
@@ -68,4 +61,5 @@ public class MenuUI : MonoBehaviour
     {
         menuSound.Play();
     }
+
 }

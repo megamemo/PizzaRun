@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -8,19 +7,17 @@ public class SpawnManager : MonoBehaviour
     public GameObject[] obstacles;
     public GameObject powerup;
 
-    public int randomEnemy;
-
     private float xRange = 15.5f;
     private float yEnemyPos = 0.1f;
-    private float zEnemyPos = 16.0f;
+    private float zEnemyPos = 17.0f;
     private float yPowerupPos = 0.75f;
     private float zPowerupRange = 5.0f;
 
-    private int startTimeEnemy = 2;
+    private int startTimeEnemy = 1;
     private int startTimeObstacle = 3;
     private int startTimePowerup = 15;
 
-    private float repeatTimeEnemy = 3.0f;
+    private float repeatTimeEnemy = 3.5f;
     private float repeatTimeEnemyNew;
     private float repeatTimeEnemyMin = 0.5f;
     private int repeatTimeEnemyMultipliler = 15;
@@ -31,10 +28,9 @@ public class SpawnManager : MonoBehaviour
     private int limitPowerupCount = 1;
 
 
-    void Awake()
+    private void Awake()
     {
         currentPowerupCount = 1;
-        //InvokeRepeating("SpawnRandomEnemy", startTimeEnemy, repeatTimeEnemy);
         Invoke("SpawnRandomEnemy", startTimeEnemy);
         StartCoroutine(SpawnRepeatEnemy());
         InvokeRepeating("SpawnRandomObstacle", startTimeObstacle, repeatTimeObstacle);
@@ -46,9 +42,9 @@ public class SpawnManager : MonoBehaviour
         RepeatEnemy();
     }
 
-    void SpawnRandomEnemy()
+    private void SpawnRandomEnemy()
     {
-        randomEnemy = Random.Range(0, enemies.Length);
+        int randomEnemy = Random.Range(0, enemies.Length);
         float xRandomPos = Random.Range(-xRange, xRange);
         Vector3 randomPos = new Vector3(xRandomPos, yEnemyPos, zEnemyPos);
 
@@ -60,18 +56,19 @@ public class SpawnManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(repeatTimeEnemyNew);
-                SpawnRandomEnemy();
+            SpawnRandomEnemy();
         }
     }
 
     private void RepeatEnemy()
     {
         repeatTimeEnemyNew = repeatTimeEnemy - repeatTimeEnemy * (GameManager.instance.levelCurrent - 1) / repeatTimeEnemyMultipliler;
+
         if (repeatTimeEnemyNew < repeatTimeEnemyMin)
             repeatTimeEnemyNew = repeatTimeEnemyMin;
     }
 
-    void SpawnRandomObstacle()
+    private void SpawnRandomObstacle()
     {
         int randomEnemy = Random.Range(0, obstacles.Length);
         float xRandomPos = Random.Range(-xRange, xRange);
@@ -80,7 +77,7 @@ public class SpawnManager : MonoBehaviour
         Instantiate(obstacles[randomEnemy], randomPos, obstacles[randomEnemy].gameObject.transform.rotation);
     }
 
-    void SpawnPowerup()
+    private void SpawnPowerup()
     {
         if (currentPowerupCount <= limitPowerupCount)
         {
@@ -92,4 +89,5 @@ public class SpawnManager : MonoBehaviour
             currentPowerupCount++;
         }
     }
+
 }

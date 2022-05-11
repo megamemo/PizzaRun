@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
-using TMPro;
 
 public class ScoreData : MonoBehaviour
 {
@@ -32,6 +29,7 @@ public class ScoreData : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -43,7 +41,6 @@ public class ScoreData : MonoBehaviour
         if (bestScoreTime < (int)Math.Floor(GameManager.instance.playTime))
         {
             bestScoreTime = (int)Math.Floor(GameManager.instance.playTime);
-
             bestScoreLevel = GameManager.instance.levelCurrent;
             isBestScore = true;
             BestScores();
@@ -72,7 +69,7 @@ public class ScoreData : MonoBehaviour
         public int[] scoreLevels;
     }
 
-    void SaveDataFile()
+    private void SaveDataFile()
     {
         SaveData data = new SaveData();
         data.bestScoreTime = bestScoreTime;
@@ -84,7 +81,7 @@ public class ScoreData : MonoBehaviour
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
-    void LoadDataFile()
+    private void LoadDataFile()
     {
         string path = Application.persistentDataPath + "/savefile.json";
         if (File.Exists(path))

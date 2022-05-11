@@ -1,18 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 10.0f;
-    private float topBound = 13.0f;
-    private float bottomBound = 5.0f;
+    private float speed = 0.8f;
+    private int topBound = 13;
+    private int bottomBound = 5;
     private int playerHealth;
-    
+
     private Rigidbody playerRb;
-    public GameObject spawnObject;
+    [SerializeField] private GameObject spawnObject;
     private SpawnManager spawnManager;
     [SerializeField] private GameObject health1;
     [SerializeField] private GameObject health2;
@@ -23,7 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioSource damageSound;
 
 
-    void Awake()
+    private void Awake()
     {
         playerRb = GetComponent<Rigidbody>();
         spawnManager = spawnObject.GetComponent<SpawnManager>();
@@ -31,40 +27,31 @@ public class PlayerController : MonoBehaviour
         HealthUpdate();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         MovePlayer();
         ConstrainPlayerMovement();
     }
 
-    void MovePlayer()
+    private void MovePlayer()
     {
         float verticalInput = Input.GetAxis("Vertical");
         float horizontalInput = Input.GetAxis("Horizontal");
 
         if (!Mathf.Approximately(verticalInput, 0))
-        {
             playerRb.AddForce(Vector3.forward * verticalInput * speed, ForceMode.VelocityChange);
-            //transform.Translate(Vector3.forward * verticalInput * speed * Time.deltaTime);
-        }
 
         if (!Mathf.Approximately(horizontalInput, 0))
-        {
             playerRb.AddForce(Vector3.right * horizontalInput * speed, ForceMode.VelocityChange);
-            //transform.Translate(Vector3.right * horizontalInput * speed * Time.deltaTime);
-        }
     }
 
-    void ConstrainPlayerMovement()
+    private void ConstrainPlayerMovement()
     {
         if (transform.position.z > topBound)
-        {
             transform.position = new Vector3(transform.position.x, transform.position.y, topBound);
-        }
+
         if (transform.position.z < -bottomBound)
-        {
             transform.position = new Vector3(transform.position.x, transform.position.y, -bottomBound);
-        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -82,7 +69,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Powerup"))
         {
@@ -139,4 +126,5 @@ public class PlayerController : MonoBehaviour
     {
         healthLight.gameObject.SetActive(false);
     }
+
 }

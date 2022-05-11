@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,20 +7,17 @@ using UnityEditor;
 [DefaultExecutionOrder(1000)]
 public class MainUI : MonoBehaviour
 {
-    [SerializeField] GameObject pauseMenu;
-    [SerializeField] GameObject gameOverText;
-    [SerializeField] GameObject gameOverMenu;
-
+    [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private GameObject gameOverText;
+    [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private AudioSource menuSound;
     [SerializeField] private AudioSource exitSound;
 
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
             PauseMenu();
-        }
     }
 
     public void PauseMenu()
@@ -85,4 +79,5 @@ public class MainUI : MonoBehaviour
     {
         menuSound.Play();
     }
+
 }
