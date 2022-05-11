@@ -37,17 +37,32 @@ public class ScoreData : MonoBehaviour
     public void NewBestScore()
     {
         isBestScore = false;
-
-        if (bestScoreTime < (int)Math.Floor(GameManager.instance.playTime))
+        if (!Array.Exists(scoreTimes, scoreTimes => scoreTimes == (int)Math.Floor(GameManager.instance.playTime)))
         {
-            bestScoreTime = (int)Math.Floor(GameManager.instance.playTime);
-            bestScoreLevel = GameManager.instance.levelCurrent;
-            isBestScore = true;
-            BestScores();
+            if (bestScoreTime < (int)Math.Floor(GameManager.instance.playTime))
+            {
+                bestScoreTime = (int)Math.Floor(GameManager.instance.playTime);
+                bestScoreLevel = GameManager.instance.levelCurrent;
+                isBestScore = true;
+                BestScore();
+            }
+            else
+            {
+                for (int i = 1; i < scoreArrayLenght; i++)
+                {
+                    if (scoreTimes[i] < (int)Math.Floor(GameManager.instance.playTime))
+                    {
+                        scoreTimes[i] = (int)Math.Floor(GameManager.instance.playTime);
+                        scoreLevels[i] = GameManager.instance.levelCurrent;
+                        SaveDataFile();
+                    }
+
+                }
+            }
         }
     }
 
-    public void BestScores()
+    private void BestScore()
     {
         scoreTimes[scoreArrayLenght - 1] = bestScoreTime;
         scoreLevels[scoreArrayLenght - 1] = GameManager.instance.levelCurrent;
