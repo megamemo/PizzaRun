@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -12,9 +13,14 @@ public class MainUI : MonoBehaviour
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private AudioSource menuSound;
     [SerializeField] private AudioSource exitSound;
+    [SerializeField] private TextMeshProUGUI bestScoreText;
 
+    private void Awake()
+    {
+        bestScoreText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
+    }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
             PauseMenu();

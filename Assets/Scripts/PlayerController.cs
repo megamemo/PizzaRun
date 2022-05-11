@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private float speed = 0.8f;
+    private float speed = 0.7f;
+    private float jumpForce = 80.0f;
     private int topBound = 13;
     private int bottomBound = 5;
     private int playerHealth;
@@ -17,6 +18,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject healthLight;
     [SerializeField] private AudioSource healthSound;
     [SerializeField] private AudioSource damageSound;
+    [SerializeField] private AudioSource jumpSound;
 
 
     private void Awake()
@@ -35,14 +37,23 @@ public class PlayerController : MonoBehaviour
 
     private void MovePlayer()
     {
-        float verticalInput = Input.GetAxis("Vertical");
-        float horizontalInput = Input.GetAxis("Horizontal");
+        if (transform.position.y < 0.5f)
+        {
+            float verticalInput = Input.GetAxis("Vertical");
+            float horizontalInput = Input.GetAxis("Horizontal");
 
-        if (!Mathf.Approximately(verticalInput, 0))
-            playerRb.AddForce(Vector3.forward * verticalInput * speed, ForceMode.VelocityChange);
+            if (!Mathf.Approximately(verticalInput, 0))
+                playerRb.AddForce(Vector3.forward * verticalInput * speed, ForceMode.VelocityChange);
 
-        if (!Mathf.Approximately(horizontalInput, 0))
-            playerRb.AddForce(Vector3.right * horizontalInput * speed, ForceMode.VelocityChange);
+            if (!Mathf.Approximately(horizontalInput, 0))
+                playerRb.AddForce(Vector3.right * horizontalInput * speed, ForceMode.VelocityChange);
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                transform.Translate(Vector3.up * jumpForce * Time.fixedDeltaTime);
+                jumpSound.Play();
+            }
+        }
     }
 
     private void ConstrainPlayerMovement()
