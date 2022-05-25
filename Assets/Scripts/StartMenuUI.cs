@@ -1,21 +1,26 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 [DefaultExecutionOrder(1000)]
-public class MenuUI : MonoBehaviour
+public class StartMenuUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI[] scoreTexts;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject scores;
+    [SerializeField] private AudioSource menuMusic;
     [SerializeField] private AudioSource menuSound;
     [SerializeField] private AudioSource exitSound;
 
 
-    private void FixedUpdate()
+    private void Start()
+    {
+        menuMusic.Play();
+    }
+
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
             BackToMenu();
@@ -23,7 +28,10 @@ public class MenuUI : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene(1);
+        menuMusic.Stop();
+
+        SceneLoader.instance.LoadGameScene();
+        GameManager.instance.StartGame();
     }
 
     public void Scores()

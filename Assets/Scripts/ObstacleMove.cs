@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ObstacleMove : MonoBehaviour
@@ -7,17 +8,40 @@ public class ObstacleMove : MonoBehaviour
     private int zDestroy = -10;
 
 
-    private void FixedUpdate()
+    private void Start()
+    {
+        GameManager.instance.GameRestarted += OnGameRestarted;
+    }
+
+    private void StartGame()
+    {
+        Destroy(gameObject);
+    }
+
+    private void Update()
     {
         transform.Translate(Vector3.forward * -SpeedLevel() * Time.deltaTime);
 
         if (transform.position.z < zDestroy)
             Destroy(gameObject);
     }
+    
+    private void OnDestroy()
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.GameRestarted -= OnGameRestarted;
+        }
+    }
+
+    private void OnGameRestarted(object sender, EventArgs e)
+    {
+        StartGame();
+    }
 
     private float SpeedLevel()
     {
-        float newSpeed = speed + speed * (GameManager.instance.levelCurrent - 1) / speedMultiplier;
+        float newSpeed = speed + speed * (GameManager.instance.level - 1) / speedMultiplier;
         return newSpeed;
     }
 

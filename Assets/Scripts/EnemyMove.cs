@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 public class EnemyMove : MonoBehaviour
 {
-    [SerializeField] private float speed = 5.0f;
+    [SerializeField] private float speed = 5.0f; //Prefabs unique values set in Editor
     private int speedMultiplier = 5;
     private int zDestroy = -10;
 
@@ -14,17 +15,40 @@ public class EnemyMove : MonoBehaviour
         objectRb = GetComponent<Rigidbody>();
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        objectRb.AddForce(Vector3.forward * -SpeedLevel(), ForceMode.Force);
+        GameManager.instance.GameRestarted += OnGameRestarted;
+    }
 
-        if (transform.position.z < zDestroy)
-            Destroy(gameObject);
+    private void StartGame()
+    {
+        Destroy(gameObject);
+    }
+
+    private void Update()
+        {
+            transform.Translate(Vector3.back * speed * Time.deltaTime);
+
+            if (transform.position.z < zDestroy)
+                Destroy(gameObject);
+        }
+
+    private void OnDestroy()
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.GameRestarted -= OnGameRestarted;
+        }
+    }
+
+    private void OnGameRestarted(object sender, EventArgs e)
+    {
+        StartGame();
     }
 
     private float SpeedLevel()
     {
-        float newSpeed = speed + speed * (GameManager.instance.levelCurrent - 1) / speedMultiplier;
+        float newSpeed = speed + speed * (GameManager.instance.level - 1) / speedMultiplier;
         return newSpeed;
     }
 

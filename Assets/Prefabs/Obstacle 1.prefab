@@ -31,6 +31,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 10.05, y: 1, z: 7.14}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8087743610849894430}
   m_Father: {fileID: 0}
@@ -55,6 +56,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -126,7 +128,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d83736813419447c9b29e5c8966ad32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
 --- !u!1001 &8084716765206022426
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -201,11 +202,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1732272334065596, guid: cdcb19fde9e8cba40b7bff849baf2c1b, type: 3}
   m_PrefabInstance: {fileID: 8084716765206022426}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &8087743610849894430 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4434221626337540, guid: cdcb19fde9e8cba40b7bff849baf2c1b, type: 3}
-  m_PrefabInstance: {fileID: 8084716765206022426}
-  m_PrefabAsset: {fileID: 0}
 --- !u!135 &5577226831950197768
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -219,3 +215,8 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 1.3325522
   m_Center: {x: 0, y: -0.000000059604645, z: 0}
+--- !u!4 &8087743610849894430 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4434221626337540, guid: cdcb19fde9e8cba40b7bff849baf2c1b, type: 3}
+  m_PrefabInstance: {fileID: 8084716765206022426}
+  m_PrefabAsset: {fileID: 0}

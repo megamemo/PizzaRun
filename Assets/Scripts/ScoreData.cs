@@ -16,13 +16,26 @@ public class ScoreData : MonoBehaviour
 
     private void Awake()
     {
-        InstanceScoreData();
-        scoreTimes = new int[scoreArrayLenght];
-        scoreLevels = new int[scoreArrayLenght];
-        LoadDataFile();
+        InstanciateScoreData();
     }
 
-    private void InstanceScoreData()
+    private void Start()
+    {
+        GameManager.instance.GameOvered += OnGameOvered;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.instance != null)
+            GameManager.instance.LevelChanged -= OnGameOvered;
+    }
+
+    private void OnGameOvered(object sender, EventArgs e)
+    {
+        NewBestScore();
+    }
+
+    private void InstanciateScoreData()
     {
         if (instance != null)
         {
@@ -31,18 +44,19 @@ public class ScoreData : MonoBehaviour
         }
 
         instance = this;
-        DontDestroyOnLoad(gameObject);
+    
+        LoadDataFile();
     }
 
-    public void NewBestScore()
+    private void NewBestScore()
     {
         isBestScore = false;
-        if (!Array.Exists(scoreTimes, scoreTimes => scoreTimes == (int)Math.Floor(GameManager.instance.playTime)))
+        if (!Array.Exists(scoreTimes, scoreTimes => scoreTimes == (int)Math.Floor(GameManager.instance.gameDuration)))
         {
-            if (bestScoreTime < (int)Math.Floor(GameManager.instance.playTime))
+            if (bestScoreTime < (int)Math.Floor(GameManager.instance.gameDuration))
             {
-                bestScoreTime = (int)Math.Floor(GameManager.instance.playTime);
-                bestScoreLevel = GameManager.instance.levelCurrent;
+                bestScoreTime = (int)Math.Floor(GameManager.instance.gameDuration);
+                bestScoreLevel = GameManager.instance.level;
                 isBestScore = true;
                 BestScore();
             }
@@ -50,10 +64,10 @@ public class ScoreData : MonoBehaviour
             {
                 for (int i = 1; i < scoreArrayLenght; i++)
                 {
-                    if (scoreTimes[i] < (int)Math.Floor(GameManager.instance.playTime))
+                    if (scoreTimes[i] < (int)Math.Floor(GameManager.instance.gameDuration))
                     {
-                        scoreTimes[i] = (int)Math.Floor(GameManager.instance.playTime);
-                        scoreLevels[i] = GameManager.instance.levelCurrent;
+                        scoreTimes[i] = (int)Math.Floor(GameManager.instance.gameDuration);
+                        scoreLevels[i] = GameManager.instance.level;
                         SaveDataFile();
                     }
 
@@ -65,7 +79,7 @@ public class ScoreData : MonoBehaviour
     private void BestScore()
     {
         scoreTimes[scoreArrayLenght - 1] = bestScoreTime;
-        scoreLevels[scoreArrayLenght - 1] = GameManager.instance.levelCurrent;
+        scoreLevels[scoreArrayLenght - 1] = GameManager.instance.level;
 
         Array.Sort(scoreTimes);
         Array.Sort(scoreLevels);
@@ -98,6 +112,9 @@ public class ScoreData : MonoBehaviour
 
     private void LoadDataFile()
     {
+        scoreTimes = new int[scoreArrayLenght];
+        scoreLevels = new int[scoreArrayLenght];
+
         string path = Application.persistentDataPath + "/savefile.json";
         if (File.Exists(path))
         {

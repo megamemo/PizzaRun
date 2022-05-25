@@ -1,14 +1,15 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private float speed = 0.7f;
-    private float jumpForce = 80.0f;
+    private float speed = 10f;
+    private float jumpForce = 70.0f;
     private int topBound = 13;
     private int bottomBound = 5;
     private int playerHealth;
+    private Vector3 startPos = new Vector3(0, 0.46f, 0);
 
-    private Rigidbody playerRb;
     [SerializeField] private GameObject spawnObject;
     private SpawnManager spawnManager;
     [SerializeField] private GameObject health1;
@@ -23,35 +24,63 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        playerRb = GetComponent<Rigidbody>();
         spawnManager = spawnObject.GetComponent<SpawnManager>();
+    }
+
+    private void Start()
+    {
+        StartGame();
+
+        GameManager.instance.GameRestarted += OnGameRestarted;
+    }
+
+    private void StartGame()
+    {
         playerHealth = 3;
         HealthUpdate();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         MovePlayer();
         ConstrainPlayerMovement();
     }
 
+    private void OnDestroy()
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.GameRestarted -= OnGameRestarted;
+        }
+    }
+
+    private void OnGameRestarted(object sender, EventArgs e)
+    {
+        StartGame();
+        transform.position = startPos;
+    }
+
     private void MovePlayer()
     {
-        if (transform.position.y < 0.5f)
+        if (GameManager.instance.state != GameManager.GameState.GameOver)
         {
             float verticalInput = Input.GetAxis("Vertical");
             float horizontalInput = Input.GetAxis("Horizontal");
+            bool jumpInput = Input.GetKeyDown(KeyCode.Space);
 
             if (!Mathf.Approximately(verticalInput, 0))
-                playerRb.AddForce(Vector3.forward * verticalInput * speed, ForceMode.VelocityChange);
+                transform.Translate(Vector3.forward * verticalInput * speed * Time.deltaTime);
 
             if (!Mathf.Approximately(horizontalInput, 0))
-                playerRb.AddForce(Vector3.right * horizontalInput * speed, ForceMode.VelocityChange);
+                transform.Translate(Vector3.right * horizontalInput * speed * Time.deltaTime);
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (transform.position.y < 0.5f)
             {
-                transform.Translate(Vector3.up * jumpForce * Time.fixedDeltaTime);
-                jumpSound.Play();
+                if (jumpInput)
+                {
+                    transform.Translate(Vector3.up * jumpForce * Time.deltaTime);
+                    jumpSound.Play();
+                }
             }
         }
     }
@@ -124,7 +153,6 @@ public class PlayerController : MonoBehaviour
             health2.gameObject.SetActive(false);
             health3.gameObject.SetActive(false);
             GameManager.instance.GameOver();
-            speed = 0;
         }
     }
 
