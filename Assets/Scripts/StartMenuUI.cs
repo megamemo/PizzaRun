@@ -39,7 +39,7 @@ public class StartMenuUI : MonoBehaviour
         MenuSound();
         mainMenu.SetActive(false);
 
-        for (int i = 0; i < ScoreData.instance.scoreArrayLenght; i++)
+        for (int i = 0; i < ScoreData.instance.scoreArrayLength; i++)
         {
             scoreTexts[i].text = (i + 1) + ": " + ScoreData.instance.scoreTimes[i] + " sec, " + ScoreData.instance.scoreLevels[i] + " lvl";
         }

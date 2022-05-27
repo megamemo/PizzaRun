@@ -2811,6 +2811,7 @@ MonoBehaviour:
   menuSound: {fileID: 1117726613}
   exitSound: {fileID: 1117726612}
   bestScoreText: {fileID: 1343891751}
+  bestScoreGOText: {fileID: 1690900398}
   yourScoreText: {fileID: 1181663566}
   levelText: {fileID: 1809857403}
   pauseButton: {fileID: 1232391766}

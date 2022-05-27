@@ -3,11 +3,17 @@ using UnityEngine;
 
 public class ObstacleMove : MonoBehaviour
 {
-    private float speed = 5.0f;
+    private float startSpeed = 5.0f;
     private int speedMultiplier = 5;
     private int zDestroy = -10;
 
+    private Transform cashedTransform;
 
+
+    private void Awake()
+    {
+        cashedTransform = transform;
+    }
     private void Start()
     {
         GameManager.instance.GameRestarted += OnGameRestarted;
@@ -20,10 +26,8 @@ public class ObstacleMove : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate(Vector3.forward * -SpeedLevel() * Time.deltaTime);
-
-        if (transform.position.z < zDestroy)
-            Destroy(gameObject);
+        MoveDown(CalculateSpeed());
+        DeactivateOffScreen();
     }
     
     private void OnDestroy()
@@ -39,10 +43,21 @@ public class ObstacleMove : MonoBehaviour
         StartGame();
     }
 
-    private float SpeedLevel()
+    private void MoveDown(float calculatedSpeed)
     {
-        float newSpeed = speed + speed * (GameManager.instance.level - 1) / speedMultiplier;
-        return newSpeed;
+        cashedTransform.Translate(Vector3.back * calculatedSpeed * Time.deltaTime);
+    }
+
+    private void DeactivateOffScreen()
+    {
+        if (cashedTransform.position.z < zDestroy)
+            Destroy(gameObject);
+    }
+
+    private float CalculateSpeed()
+    {
+        float speed = startSpeed + startSpeed * (GameManager.instance.level - 1) / speedMultiplier;
+        return speed;
     }
 
 }

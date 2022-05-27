@@ -16,6 +16,7 @@ public class GameUI : MonoBehaviour
     [SerializeField] private AudioSource menuSound;
     [SerializeField] private AudioSource exitSound;
     [SerializeField] private TextMeshProUGUI bestScoreText;
+    [SerializeField] private TextMeshProUGUI bestScoreGOText;
     [SerializeField] private TextMeshProUGUI yourScoreText;
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private Button pauseButton;
@@ -46,6 +47,9 @@ public class GameUI : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.instance.state == GameManager.GameState.GameOver)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
             PauseMenu();
     }
@@ -79,10 +83,10 @@ public class GameUI : MonoBehaviour
 
     private void UpdateGameOverScore()
     {
-        if (ScoreData.instance.isBestScore)
-            bestScoreText.text = "NEW RECORD !";
+        if (ScoreData.instance.isNewBestScore)
+            bestScoreGOText.text = "NEW RECORD !";
         else
-            bestScoreText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
+            bestScoreGOText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
 
         yourScoreText.text = "Your Score: " + (int)Math.Floor(GameManager.instance.gameDuration) + " sec, " + GameManager.instance.level + " lvl";
     }

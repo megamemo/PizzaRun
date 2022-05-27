@@ -3,16 +3,16 @@ using UnityEngine;
 
 public class EnemyMove : MonoBehaviour
 {
-    [SerializeField] private float speed = 5.0f; //Prefabs unique values set in Editor
+    [SerializeField] private float startSpeed = 5.0f; //Prefabs unique values set in Editor
     private int speedMultiplier = 5;
     private int zDestroy = -10;
 
-    private Rigidbody objectRb;
+    private Transform cashedTransform;
 
-    
+
     private void Awake()
     {
-        objectRb = GetComponent<Rigidbody>();
+        cashedTransform = transform;
     }
 
     private void Start()
@@ -26,12 +26,10 @@ public class EnemyMove : MonoBehaviour
     }
 
     private void Update()
-        {
-            transform.Translate(Vector3.back * speed * Time.deltaTime);
-
-            if (transform.position.z < zDestroy)
-                Destroy(gameObject);
-        }
+    {
+        MoveDown(CalculateSpeed());
+        DeactivateOffScreen();
+    }
 
     private void OnDestroy()
     {
@@ -46,10 +44,21 @@ public class EnemyMove : MonoBehaviour
         StartGame();
     }
 
-    private float SpeedLevel()
+    private void MoveDown(float calculatedSpeed)
     {
-        float newSpeed = speed + speed * (GameManager.instance.level - 1) / speedMultiplier;
-        return newSpeed;
+        cashedTransform.Translate(Vector3.back * calculatedSpeed * Time.deltaTime);
+    }
+
+    private void DeactivateOffScreen()
+    {
+        if (cashedTransform.position.z < zDestroy)
+            Destroy(gameObject);
+    }
+
+    private float CalculateSpeed()
+    {
+        float speed = startSpeed + startSpeed * (GameManager.instance.level - 1) / speedMultiplier;
+        return speed;
     }
 
 }

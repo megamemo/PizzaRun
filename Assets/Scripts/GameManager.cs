@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
     public int level { get; private set; }
     private float gameStartTime;
     public float gameDuration { get; private set; }
-    private float levelDuration = 30.0f;
+    private float levelDuration = 10.0f;
     public float timeScale { get => Time.timeScale; set => Time.timeScale = value; }
     public GameState state;
 
@@ -49,21 +49,26 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (state == GameState.Play)
-        {
-            if (GetGameDuration() >= levelDuration * level)
-                ProceedToNextLevel();
-        }
+        ProceedToNextLevel();
+        GetGameDuration();
     }
 
     private float GetGameDuration()
     {
-        return gameDuration = Time.time - gameStartTime;
+        if (state == GameState.Play)
+        {
+            gameDuration = Time.time - gameStartTime;
+        }
+        return gameDuration;
     }
 
     private void ProceedToNextLevel()
     {
-        SetLevel(level + 1);
+        if (state == GameState.Play)
+        {
+            if (gameDuration >= levelDuration * level)
+            SetLevel(level + 1);    
+        }
     }
 
     private void SetLevel(int value)

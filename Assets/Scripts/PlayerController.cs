@@ -123,7 +123,8 @@ public class PlayerController : MonoBehaviour
 
             HealthUpdate();
             Destroy(other.gameObject);
-            spawnManager.currentPowerupCount--;
+            spawnManager.powerupCounter--;
+            spawnManager.SetStartDelayPowerup();
         }
     }
 

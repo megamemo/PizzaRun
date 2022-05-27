@@ -2,23 +2,38 @@ using UnityEngine;
 
 public class GroundMove : MonoBehaviour
 {
-    private float speed = 5.0f;
+    private float startSpeed = 5.0f;
     private int speedMultiplier = 5;
     private int startPos = 50;
 
+    private float offset;
+    private Transform cashedTransform;
+
+
+    private void Awake()
+    {
+        cashedTransform = transform;
+    }
 
     private void Update()
     {
-        if (transform.position.z <= 0.0f)
-            transform.Translate(transform.position.x, transform.position.y, startPos);
-        else
-            transform.Translate(Vector3.back * SpeedLevel() * Time.deltaTime);
+        MoveDown(CalculateSpeed());
     }
 
-    private float SpeedLevel()
+    private void MoveDown(float calculatedSpeed)
     {
-        float newSpeed = speed + speed * (GameManager.instance.level - 1) / speedMultiplier;
-        return newSpeed;
+        offset += calculatedSpeed * Time.deltaTime;
+        offset %= startPos;
+
+        var pos = cashedTransform.position;
+        pos.z = startPos - offset;
+        cashedTransform.position = pos;
+    }
+
+    private float CalculateSpeed()
+    {
+        float speed = startSpeed + startSpeed * (GameManager.instance.level - 1) / speedMultiplier;
+        return speed;
     }
 
 }
