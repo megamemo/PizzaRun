@@ -29,13 +29,13 @@ public class GameUI : MonoBehaviour
 
     private void Start()
     {
-        StartGameUI();
+        StartGame();
 
         GameManager.instance.LevelChanged += OnLevelChanged;
         GameManager.instance.GameOvered += OnGameOvered;
     }
 
-    private void StartGameUI()
+    private void StartGame()
     {
         UpdateLevelText();
 
@@ -51,7 +51,7 @@ public class GameUI : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.Escape))
-            PauseMenu();
+            PauseMenuUI();
     }
 
     private void OnDestroy()
@@ -91,27 +91,36 @@ public class GameUI : MonoBehaviour
         yourScoreText.text = "Your Score: " + (int)Math.Floor(GameManager.instance.gameDuration) + " sec, " + GameManager.instance.level + " lvl";
     }
 
-    public void PauseMenu()
+    private void MenuSound()
+    {
+        menuSound.Play();
+    }
+
+    private void PauseGame()
+    {
+        GameManager.instance.PauseGame();
+
+        pauseMenu.SetActive(true);
+    }
+
+    private void UnPauseGame()
+    {
+        GameManager.instance.UnPauseGame();
+
+        pauseMenu.SetActive(false);
+    }
+
+    public void PauseMenuUI()
     {
         MenuSound();
 
         if (pauseMenu.activeSelf)
-        {
-            GameManager.instance.state = GameManager.GameState.Play;
-            GameManager.instance.timeScale = 1;
-            pauseMenu.SetActive(false);
-            GameManager.instance.gameMusic.UnPause();
-        }
+            UnPauseGame();
         else
-        {
-            GameManager.instance.state = GameManager.GameState.Pause;
-            GameManager.instance.timeScale = 0;
-            pauseMenu.SetActive(true);
-            GameManager.instance.gameMusic.Pause();
-        }
+            PauseGame();
     }
 
-    public void Continue()
+    public void ContinueUI()
     {
         MenuSound();
 
@@ -119,24 +128,20 @@ public class GameUI : MonoBehaviour
         gameOverMenu.SetActive(true);
     }
 
-    public void ResumeGame()
+    public void ResumeGameUI()
     {
         MenuSound();
-
-        GameManager.instance.state = GameManager.GameState.Play;
-        GameManager.instance.timeScale = 1;
-        GameManager.instance.gameMusic.UnPause();
-        pauseMenu.SetActive(false);
+        UnPauseGame();
     }
 
-    public void RestartGame()
+    public void RestartGameUI()
     {
-        StartGameUI();
+        StartGame();
 
         GameManager.instance.RestartGame();
     }
 
-    public void ToMenu()
+    public void BackToMenuUI()
     {
         MenuSound();
 
@@ -145,7 +150,7 @@ public class GameUI : MonoBehaviour
         SceneLoader.instance.LoadStartMenuScene();
     }
 
-    public void ExitGame()
+    public void ExitGameUI()
     {
         exitSound.Play();
 
@@ -154,11 +159,6 @@ public class GameUI : MonoBehaviour
 #else
         Application.Quit();
 #endif
-    }
-
-    private void MenuSound()
-    {
-        menuSound.Play();
     }
 
 }

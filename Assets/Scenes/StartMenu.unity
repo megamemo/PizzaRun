@@ -209,7 +209,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MenuUI, Assembly-CSharp
-        m_MethodName: Scores
+        m_MethodName: ScoresUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1232,7 +1232,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MenuUI, Assembly-CSharp
-        m_MethodName: BackToMenu
+        m_MethodName: BackToMenuUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2204,7 +2204,6 @@ MonoBehaviour:
   - {fileID: 830991991}
   mainMenu: {fileID: 826899762}
   scores: {fileID: 199486480}
-  menuMusic: {fileID: 1117726612}
   menuSound: {fileID: 1117726614}
   exitSound: {fileID: 1117726613}
 --- !u!82 &1117726612
@@ -4045,7 +4044,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: Menu, Assembly-CSharp
-        m_MethodName: ExitGame
+        m_MethodName: ExitGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4225,7 +4224,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MenuUI, Assembly-CSharp
-        m_MethodName: StartGame
+        m_MethodName: StartGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

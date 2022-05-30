@@ -550,7 +550,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: ExitGame
+        m_MethodName: ExitGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1222,7 +1222,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: RestartGame
+        m_MethodName: RestartGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1425,7 +1425,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: ResumeGame
+        m_MethodName: ResumeGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2166,7 +2166,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: ToMenu
+        m_MethodName: BackToMenuUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3737,7 +3737,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: PauseMenu
+        m_MethodName: PauseMenuUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4711,7 +4711,7 @@ MonoBehaviour:
   - {fileID: 50850899650649521, guid: 48289cf2051864863ad659b6af84f163, type: 3}
   - {fileID: 50850899650649521, guid: aeb744cc90182467d99dcc2b93c69378, type: 3}
   powerup: {fileID: 1594216750204945755, guid: b43dc5ee0f86b42c39b6cf51fc2bb358, type: 3}
-  currentPowerupCount: 0
+  powerupCounter: 0
 --- !u!4 &1684384819
 Transform:
   m_ObjectHideFlags: 0
@@ -5115,7 +5115,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: Continue
+        m_MethodName: ContinueUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5552,7 +5552,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: ToMenu
+        m_MethodName: BackToMenuUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5686,7 +5686,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: ExitGame
+        m_MethodName: ExitGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5820,7 +5820,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1117726611}
         m_TargetAssemblyTypeName: MainUI, Assembly-CSharp
-        m_MethodName: RestartGame
+        m_MethodName: RestartGameUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

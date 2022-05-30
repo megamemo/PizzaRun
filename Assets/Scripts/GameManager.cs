@@ -7,11 +7,12 @@ public class GameManager : MonoBehaviour
     public int level { get; private set; }
     private float gameStartTime;
     public float gameDuration { get; private set; }
-    private float levelDuration = 10.0f;
-    public float timeScale { get => Time.timeScale; set => Time.timeScale = value; }
+    private float levelDuration = 30.0f;
+    private float TimeScale { get => Time.timeScale; set => Time.timeScale = value; }
     public GameState state;
 
-    public AudioSource gameMusic;
+    [SerializeField] private AudioSource gameMusic;
+    [SerializeField] private AudioSource menuMusic;
     [SerializeField] private AudioSource startSound;
     [SerializeField] private AudioSource gameOverSound;
 
@@ -40,10 +41,11 @@ public class GameManager : MonoBehaviour
     {
         state = GameState.Play;
         SetLevel(1);
-        timeScale = 1;
+        TimeScale = 1;
         gameStartTime = Time.time;
 
         startSound.Play();
+        menuMusic.Stop();
         gameMusic.Play();
     }
 
@@ -96,6 +98,20 @@ public class GameManager : MonoBehaviour
         StartGame();
     }
 
+    public void PauseGame()
+    {
+        state = GameState.Pause;
+        TimeScale = 0;
+        gameMusic.Pause();
+    }
+
+    public void UnPauseGame()
+    {
+        state = GameState.Play;
+        TimeScale = 1;
+        gameMusic.UnPause();
+    }
+
     public void StopGame()
     {
         gameMusic.Stop();
@@ -106,6 +122,13 @@ public class GameManager : MonoBehaviour
     private void ResetGame()
     {
         GameRestarted?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void SetStartMenuState()
+    {
+        state = GameState.StartMenu;
+
+        menuMusic.Play();
     }
 
     public enum GameState

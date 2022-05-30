@@ -10,33 +10,36 @@ public class StartMenuUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] scoreTexts;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject scores;
-    [SerializeField] private AudioSource menuMusic;
     [SerializeField] private AudioSource menuSound;
     [SerializeField] private AudioSource exitSound;
 
 
     private void Start()
     {
-        menuMusic.Play();
+        GameManager.instance.SetStartMenuState();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-            BackToMenu();
+            BackToMenuUI();
     }
 
-    public void StartGame()
+    private void MenuSound()
     {
-        menuMusic.Stop();
+        menuSound.Play();
+    }
 
+    public void StartGameUI()
+    {
         SceneLoader.instance.LoadGameScene();
         GameManager.instance.StartGame();
     }
 
-    public void Scores()
+    public void ScoresUI()
     {
         MenuSound();
+
         mainMenu.SetActive(false);
 
         for (int i = 0; i < ScoreData.instance.scoreArrayLength; i++)
@@ -47,7 +50,14 @@ public class StartMenuUI : MonoBehaviour
         scores.SetActive(true);
     }
 
-    public void ExitGame()
+    public void BackToMenuUI()
+    {
+        MenuSound();
+        scores.SetActive(false);
+        mainMenu.SetActive(true);
+    }
+
+    public void ExitGameUI()
     {
         exitSound.Play();
 
@@ -56,18 +66,6 @@ public class StartMenuUI : MonoBehaviour
 #else
         Application.Quit();
 #endif
-    }
-
-    public void BackToMenu()
-    {
-        MenuSound();
-        scores.SetActive(false);
-        mainMenu.SetActive(true);
-    }
-
-    private void MenuSound()
-    {
-        menuSound.Play();
     }
 
 }
