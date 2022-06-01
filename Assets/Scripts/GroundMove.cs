@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class GroundMove : MonoBehaviour
 {
-    private float startSpeed = 5.0f;
-    private int speedMultiplier = 5;
+    public static GroundMove instance { get; private set; }
+
+    [HideInInspector] public float startSpeed { get; private set; }  = 5.0f;
+    [HideInInspector] public int speedMultiplier { get; private set; } = 5;
     private int startPos = 50;
 
     private float offset;
@@ -11,6 +13,22 @@ public class GroundMove : MonoBehaviour
 
 
     private void Awake()
+    {
+        InstanciateGroundMove();
+    }
+
+    private void InstanciateGroundMove()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+    }
+
+    private void Start()
     {
         cashedTransform = transform;
     }

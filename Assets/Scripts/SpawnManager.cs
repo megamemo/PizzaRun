@@ -1,21 +1,30 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] enemies;
-    [SerializeField] private GameObject[] obstacles;
-    [SerializeField] private GameObject powerup;
-    private GameObject instantiatedPowerup;
+    public static SpawnManager instance { get; private set; }
+    [SerializeField] private GameObject healthObject;
+    private GameObject pooledHealth;
+
+    int randomEnemiesCount = 3;
+    int randomObstaclesCount = 2;
+    int randomPowerupCount = 2;
+    int randomEnemy;
+    int randomObstacle;
+    int randomPowerup;
 
     private float xRange = 15.5f;
     private float yPosEnemy = 0.1f;
     private float zPosEnemy = 17.0f;
     private float yPosPowerup = 0.75f;
-    private float zRangePowerup = 5.0f;
+    private float zRangePowerupMin = -5.0f;
+    private float zRangePowerupMax = 12.0f;
 
     private int startDelayEnemy = 1;
     private int startDelayObstacle = 3;
+    private float startDelayHealth;
     private float startDelayPowerup;
 
     private float repeatDelayEnemyMax = 3.5f;
@@ -28,38 +37,71 @@ public class SpawnManager : MonoBehaviour
     private float repeatDelayObstacle;
     private int repeatDelayObstacleMultipliler = 5;
 
-    private int repeatDelayPowerup = 20;
+    private int repeatDelayHealth = 20;
+    private int repeatDelayPowerup = 18;
 
     private int enemyCounter;
     private int obstacleCounter;
+    private int maxHealthLimit = 1;
     private int maxPowerupLimit = 1;
-    [HideInInspector] public int powerupCounter;
+    /*[HideInInspector]*/ public int healthCounter;
+    /*[HideInInspector]*/ public int powerupCounter;
 
     private float gameDuration;
-    private float spawnTimeEnemy;
-    private float spawnTimeObstacle;
+    private float lastSpawnTimeEnemy;
+    private float lastSpawnTimeObstacle;
 
+    public HealthState healthState { get; private set; }
+    public PowerupState powerupState { get; private set; }
+
+    public event EventHandler PowerupSpawned;
+
+
+    private void Awake()
+    {
+        InstanciateSpawnManager();
+    }
+
+    private void InstanciateSpawnManager()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+    }
 
     private void Start()
     {
         StartGame();
+        PoolHealth();
 
         GameManager.instance.GameRestarted += OnGameRestarted;
         GameManager.instance.LevelChanged += OnLevelChanged;
+        GameManager.instance.StartMenuStarted += OnStartMenuStarted;
+        PlayerController.instance.HealthIncreased += OnHealthIncreased;
+        PlayerController.instance.HealthMaxed += OnHealthMaxed;
     }
 
     private void StartGame()
     {
         enemyCounter = 0;
         obstacleCounter = 0;
+        healthCounter = 0;
         powerupCounter = 0;
 
-        spawnTimeEnemy = 0.0f;
-        spawnTimeObstacle = 0.0f;
+        lastSpawnTimeEnemy = 0.0f;
+        lastSpawnTimeObstacle = 0.0f;
         repeatDelayEnemy = repeatDelayEnemyMax;
         repeatDelayObstacle = repeatDelayObstacleMax;
 
-        SetStartDelayPowerup();
+        healthState = HealthState.None;
+        startDelayHealth = 0;
+
+        powerupState = PowerupState.ReadyToSpawn;
+        startDelayPowerup = 0;
     }
 
     private void Update()
@@ -68,6 +110,7 @@ public class SpawnManager : MonoBehaviour
 
         RepeatSpawnEnemy();
         RepeatSpawnObstacle();
+        RepeatSpawnHealth();
         RepeatSpawnPowerup();
     }
 
@@ -78,59 +121,132 @@ public class SpawnManager : MonoBehaviour
         return gameDuration;
     }
 
+    private void PoolHealth()
+    {
+        Vector3 pos = new Vector3(0, yPosPowerup, zPosEnemy);
+
+        pooledHealth = Instantiate(healthObject, pos, healthObject.gameObject.transform.rotation);
+
+        pooledHealth.SetActive(false);
+    }
+
     private void RepeatSpawnEnemy()
     {
-        if (GameManager.instance.state == GameManager.GameState.Play)
+        if (GameManager.instance.gameState == GameManager.GameState.Play)
         {
-            if (gameDuration - spawnTimeEnemy < repeatDelayEnemyMin)
+            if (gameDuration - lastSpawnTimeEnemy < repeatDelayEnemyMin)
                 return;
 
             if (gameDuration >= startDelayEnemy + repeatDelayEnemy * enemyCounter)
-            {
-                SpawnRandomEnemy();
-            }
+                SelectRandomEnemy();
         }
     }
 
     private void RepeatSpawnObstacle()
     {
-        if (GameManager.instance.state == GameManager.GameState.Play)
+        if (GameManager.instance.gameState == GameManager.GameState.Play)
         {
-            if (gameDuration - spawnTimeObstacle < repeatDelayObstacleMin)
+            if (gameDuration - lastSpawnTimeObstacle < repeatDelayObstacleMin)
                 return;
 
             if (gameDuration >= startDelayObstacle + repeatDelayObstacle * obstacleCounter)
-            {
-                SpawnRandomObstacle();
-            }
+                SelectRandomObstacle();
+        }
+    }
+
+    private void RepeatSpawnHealth()
+    {
+        if (GameManager.instance.gameState == GameManager.GameState.Play)
+        {
+            if (healthCounter == 0 && healthState == HealthState.ReadyToSpawn)
+                healthState = HealthState.AlreadySpawning;
+
+            if (healthState == HealthState.AlreadySpawning && gameDuration - startDelayHealth >= repeatDelayHealth)
+                SpawnHealth();
         }
     }
 
     private void RepeatSpawnPowerup()
     {
-        if (GameManager.instance.state == GameManager.GameState.Play)
+        if (GameManager.instance.gameState == GameManager.GameState.Play)
         {
-            if (powerupCounter == 0)
-            {
-                if (gameDuration - startDelayPowerup >= repeatDelayPowerup)
-                {
-                    SpawnPowerup();
-                }
-            }
+            if (powerupCounter == 0 && powerupState == PowerupState.ReadyToSpawn)
+                powerupState = PowerupState.AlreadySpawning;
+
+            if (powerupState == PowerupState.AlreadySpawning && gameDuration - startDelayPowerup >= repeatDelayPowerup)
+                SelectRandomPowerup();
         }   
+    }
+
+    public void StartSpawningHealth()
+    {
+        if (healthState == HealthState.AlreadySpawning)
+            return;
+
+        healthState = HealthState.ReadyToSpawn;
+
+        SetStartDelayHealth();
+    }
+
+    public void DeactivateHealth()
+    {
+        pooledHealth.SetActive(false);
+
+        healthState = HealthState.ReadyToSpawn;
+
+        if (healthCounter > 0)
+            healthCounter--;
+
+        SetStartDelayHealth();
+    }
+
+    public void StopSpawningHealth()
+    {
+        pooledHealth.SetActive(false);
+
+        healthState = HealthState.None;
+
+        if (healthCounter > 0)
+            healthCounter--;
+    }
+
+    public void StartSpawningPowerup()
+    {
+        if (powerupState == PowerupState.AlreadySpawning)
+            return;
+
+        powerupState = PowerupState.ReadyToSpawn;
+
+        SetStartDelayPowerup();
+    }
+
+    public void DeactivatePowerup(GameObject powerup, int id)
+    {
+        ObjectPool.instance.ReleasePowerup(powerup, id);
+
+        powerupState = PowerupState.ReadyToSpawn;
+
+        if (powerupCounter > 0)
+            powerupCounter--;
+
+        SetStartDelayPowerup();
     }
 
     private void OnDestroy()
     {
         if (GameManager.instance != null)
+        {
             GameManager.instance.GameRestarted -= OnGameRestarted;
             GameManager.instance.LevelChanged -= OnLevelChanged;
+            PlayerController.instance.HealthIncreased -= OnHealthIncreased;
+            PlayerController.instance.HealthMaxed -= OnHealthMaxed;
+        }
     }
 
     private void OnGameRestarted(object sender, System.EventArgs e)
     {
-        Destroy(instantiatedPowerup);
         StartGame();
+        pooledHealth.SetActive(false);
     }
 
     private void OnLevelChanged(object sender, System.EventArgs e)
@@ -139,41 +255,147 @@ public class SpawnManager : MonoBehaviour
         CalculateRepeatDelayObstacle();
     }
 
-    private void SpawnRandomEnemy()
+    private void OnStartMenuStarted(object sender, System.EventArgs e)
     {
-        int randomEnemy = Random.Range(0, enemies.Length);
-        float xRandomPos = Random.Range(-xRange, xRange);
+        Destroy(pooledHealth);
+    }
+
+    private void OnHealthIncreased(object sender, System.EventArgs e)
+    {
+        DeactivateHealth();
+    }
+
+    private void OnHealthMaxed(object sender, System.EventArgs e)
+    {
+        StopSpawningHealth();
+    }
+
+    private void SelectRandomEnemy()
+    {
+        randomEnemy = UnityEngine.Random.Range(1, randomEnemiesCount + 1);
+
+        switch (randomEnemy)
+        {
+            case 1:
+                SpawnEnemy(ObjectPool.instance.GetPooledEnemy1());
+                break;
+            case 2:
+                SpawnEnemy(ObjectPool.instance.GetPooledEnemy2());
+                break;
+            case 3:
+                SpawnEnemy(ObjectPool.instance.GetPooledEnemy3());
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void SelectRandomObstacle()
+    {
+        randomObstacle = UnityEngine.Random.Range(1, randomObstaclesCount + 1);
+
+        switch (randomObstacle)
+        {
+            case 1:
+                SpawnObstacle(ObjectPool.instance.GetPooledObstacle1());
+                break;
+            case 2:
+                SpawnObstacle(ObjectPool.instance.GetPooledObstacle2());
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SelectRandomPowerup()
+    {
+        randomPowerup = UnityEngine.Random.Range(1, randomPowerupCount + 1);
+
+        switch (randomPowerup)
+        {
+            case 1:
+                SpawnPowerup(ObjectPool.instance.GetPooledPowerup1());
+                break;
+            case 2:
+                SpawnPowerup(ObjectPool.instance.GetPooledPowerup2());
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SpawnEnemy(GameObject pooledEnemy)
+    {
+        float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
         Vector3 randomPos = new Vector3(xRandomPos, yPosEnemy, zPosEnemy);
 
-        Instantiate(enemies[randomEnemy], randomPos, enemies[randomEnemy].gameObject.transform.rotation);
+        GameObject enemy = pooledEnemy;
+
+        if (enemy == null)
+            return;
+
+        enemy.transform.position = randomPos;
+        enemy.transform.rotation = Quaternion.identity;
 
         enemyCounter++;
-        spawnTimeEnemy = gameDuration;
+        lastSpawnTimeEnemy = gameDuration;
     }
 
-    private void SpawnRandomObstacle()
+    private void SpawnObstacle(GameObject pooledObstacle)
     {
-        int randomEnemy = Random.Range(0, obstacles.Length);
-        float xRandomPos = Random.Range(-xRange, xRange);
+        float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
         Vector3 randomPos = new Vector3(xRandomPos, yPosEnemy, zPosEnemy);
 
-        Instantiate(obstacles[randomEnemy], randomPos, obstacles[randomEnemy].gameObject.transform.rotation);
+        GameObject obstacle = pooledObstacle;
+
+        if (obstacle == null)
+            return;
+
+        obstacle.transform.position = randomPos;
+        obstacle.transform.rotation = Quaternion.identity;
 
         obstacleCounter++;
-        spawnTimeObstacle = gameDuration;
+        lastSpawnTimeObstacle = gameDuration;
     }
 
-    private void SpawnPowerup()
+    private void SpawnHealth()
+    {
+        if (healthCounter < maxHealthLimit)
+        {
+            float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
+            float zRandomPos = UnityEngine.Random.Range(zRangePowerupMin, zRangePowerupMax);
+            Vector3 randomPos = new Vector3(xRandomPos, yPosPowerup, zRandomPos);
+
+            pooledHealth.SetActive(true);
+
+            pooledHealth.transform.position = randomPos;
+
+            healthCounter++;
+            healthState = HealthState.ReadyToSpawn;
+        }
+    }
+
+    private void SpawnPowerup(GameObject pooledPowerup)
     {
         if (powerupCounter < maxPowerupLimit)
         {
-            float xRandomPos = Random.Range(-xRange, xRange);
-            float zRandomPos = Random.Range(-zRangePowerup, zRangePowerup);
+            float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
+            float zRandomPos = UnityEngine.Random.Range(zRangePowerupMin, zRangePowerupMax);
             Vector3 randomPos = new Vector3(xRandomPos, yPosPowerup, zRandomPos);
 
-            instantiatedPowerup = Instantiate(powerup, randomPos, powerup.gameObject.transform.rotation);
+            GameObject powerup = pooledPowerup;
+
+            if (powerup == null)
+                return;
+
+            powerup.transform.position = randomPos;
+            powerup.transform.rotation = Quaternion.identity;
 
             powerupCounter++;
+            powerupState = PowerupState.ReadyToSpawn;
+
+            PowerupSpawned?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -193,9 +415,28 @@ public class SpawnManager : MonoBehaviour
             repeatDelayObstacle = repeatDelayObstacleMin;
     }
 
+    public void SetStartDelayHealth()
+    {
+        startDelayHealth = gameDuration;
+    }
+
     public void SetStartDelayPowerup()
     {
         startDelayPowerup = gameDuration;
+    }
+
+    public enum HealthState
+    {
+        None,
+        ReadyToSpawn,
+        AlreadySpawning
+    }
+
+    public enum PowerupState
+    {
+        None,
+        ReadyToSpawn,
+        AlreadySpawning
     }
 
 }

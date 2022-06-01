@@ -47,7 +47,7 @@ public class GameUI : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance.state == GameManager.GameState.GameOver)
+        if (GameManager.instance.gameState == GameManager.GameState.GameOver)
             return;
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -146,7 +146,7 @@ public class GameUI : MonoBehaviour
         MenuSound();
 
         GameManager.instance.StopGame();
-        GameManager.instance.state = GameManager.GameState.StartMenu;
+        GameManager.instance.gameState = GameManager.GameState.StartMenu;
         SceneLoader.instance.LoadStartMenuScene();
     }
 

@@ -3,28 +3,38 @@ using UnityEngine;
 
 public class ObstacleMove : MonoBehaviour
 {
-    private float startSpeed = 5.0f;
-    private int speedMultiplier = 5;
+    private float startSpeed; //Speed is equal to Ground speed
+    private int speedMultiplier;
     private int zDestroy = -10;
+    [SerializeField] private int id;
 
-    private Transform cashedTransform;
+
+    private Rigidbody obstacleRb;
 
 
-    private void Awake()
-    {
-        cashedTransform = transform;
-    }
     private void Start()
     {
+        StartGame();
+
         GameManager.instance.GameRestarted += OnGameRestarted;
+        GameManager.instance.StartMenuStarted += OnStartMenuStarted;
     }
 
     private void StartGame()
     {
-        Destroy(gameObject);
+        obstacleRb = GetComponent<Rigidbody>();
+        startSpeed = GroundMove.instance.startSpeed;
+        speedMultiplier = GroundMove.instance.speedMultiplier;
     }
 
-    private void Update()
+    private void RestartGame()
+    {
+        ObjectPool.instance.ReleaseObstacle(gameObject, id);
+
+        StartGame();
+    }
+
+    private void FixedUpdate()
     {
         MoveDown(CalculateSpeed());
         DeactivateOffScreen();
@@ -35,23 +45,29 @@ public class ObstacleMove : MonoBehaviour
         if (GameManager.instance != null)
         {
             GameManager.instance.GameRestarted -= OnGameRestarted;
+            GameManager.instance.StartMenuStarted -= OnStartMenuStarted;
         }
     }
 
     private void OnGameRestarted(object sender, EventArgs e)
     {
-        StartGame();
+        RestartGame();
+    }
+
+    private void OnStartMenuStarted(object sender, System.EventArgs e)
+    {
+        Destroy(gameObject);
     }
 
     private void MoveDown(float calculatedSpeed)
     {
-        cashedTransform.Translate(Vector3.back * calculatedSpeed * Time.deltaTime);
+        obstacleRb.position += Vector3.back * calculatedSpeed * Time.deltaTime;
     }
 
     private void DeactivateOffScreen()
     {
-        if (cashedTransform.position.z < zDestroy)
-            Destroy(gameObject);
+        if (obstacleRb.position.z < zDestroy)
+            ObjectPool.instance.ReleaseObstacle(gameObject, id);
     }
 
     private float CalculateSpeed()
