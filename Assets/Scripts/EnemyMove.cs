@@ -28,7 +28,7 @@ public class EnemyMove : MonoBehaviour
     {
         ResetAfterCollision();
 
-        ObjectPool.instance.ReleaseEnemy(gameObject, id);
+        ObjectsPoolManager.instance.ReleaseEnemy(gameObject, id);
     }
 
     private void FixedUpdate()
@@ -53,7 +53,7 @@ public class EnemyMove : MonoBehaviour
 
     private void OnStartMenuStarted(object sender, System.EventArgs e)
     {
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -85,7 +85,7 @@ public class EnemyMove : MonoBehaviour
     {
         ResetAfterCollision();
 
-        ObjectPool.instance.ReleaseEnemy(gameObject, id);
+        ObjectsPoolManager.instance.ReleaseEnemy(gameObject, id);
     }
 
         private void ResetAfterCollision()
@@ -99,7 +99,7 @@ public class EnemyMove : MonoBehaviour
     private void DeactivateOffScreen()
     {
         if (enemyRb.position.z < zDestroy)
-            ObjectPool.instance.ReleaseEnemy(gameObject, id);
+            ObjectsPoolManager.instance.ReleaseEnemy(gameObject, id);
     }
 
     private Quaternion CalculateRandomRotation()

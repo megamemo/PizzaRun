@@ -7,14 +7,13 @@ public class PowerupController : MonoBehaviour
 
     private float activeDurationLimitMax = 10.0f;
     private float activeDuration;
-    private float lastSpawnTime;
+
 
     private void Start()
     {
         GameManager.instance.GameRestarted += OnGameRestarted;
         GameManager.instance.StartMenuStarted += OnStartMenuStarted;
         PlayerController.instance.Poweruped += OnPoweruped;
-        SpawnManager.instance.PowerupSpawned += OnPowerupSpawned;
     }
 
     private void Update()
@@ -33,16 +32,13 @@ public class PowerupController : MonoBehaviour
 
     private void DeactivateOnDurationLimit()
     {
-        if (activeDuration - lastSpawnTime >= activeDurationLimitMax)
-        {
+        if (activeDuration - SpawnManager.instance.lastSpawnTimePowerup >= activeDurationLimitMax)
             SpawnManager.instance.DeactivatePowerup(gameObject, id);
-        }
     }
 
     private void Reset()
     {
         activeDuration = 0;
-        lastSpawnTime = 0;
     }
 
     private void OnDestroy()
@@ -52,7 +48,6 @@ public class PowerupController : MonoBehaviour
             GameManager.instance.GameRestarted -= OnGameRestarted;
             GameManager.instance.StartMenuStarted -= OnStartMenuStarted;
             PlayerController.instance.Poweruped -= OnPoweruped;
-            SpawnManager.instance.PowerupSpawned -= OnPowerupSpawned;
         }
     }
 
@@ -60,22 +55,17 @@ public class PowerupController : MonoBehaviour
     {
         Reset();
 
-        ObjectPool.instance.ReleasePowerup(gameObject, id);
+        ObjectsPoolManager.instance.ReleasePowerup(gameObject, id);
     }
 
     private void OnStartMenuStarted(object sender, System.EventArgs e)
     {
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     private void OnPoweruped(object sender, EventArgs e)
     {
         SpawnManager.instance.DeactivatePowerup(gameObject, id);
-    }
-
-    private void OnPowerupSpawned(object sender, EventArgs e)
-    {
-        lastSpawnTime = GameManager.instance.gameDuration;
     }
 
 }

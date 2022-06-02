@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class SpawnManager : MonoBehaviour
+public class SpawnManager1 : MonoBehaviour
 {
-    public static SpawnManager instance { get; private set; }
+    public static SpawnManager1 instance { get; private set; }
     [SerializeField] private GameObject healthObject;
     private GameObject pooledHealth;
 
@@ -236,7 +236,7 @@ public class SpawnManager : MonoBehaviour
 
     public void DeactivatePowerup(GameObject powerup, int id)
     {
-        ObjectsPoolManager.instance.ReleasePowerup(powerup, id);
+        ObjectPool.instance.ReleasePowerup(powerup, id);
 
         powerupState = PowerupState.ReadyToSpawn;
 
@@ -291,13 +291,13 @@ public class SpawnManager : MonoBehaviour
         switch (randomEnemy)
         {
             case 1:
-                SpawnEnemy(ObjectsPoolManager.instance.pooledEnemy1.Get());
+                SpawnEnemy(ObjectPool.instance.GetPooledEnemy1());
                 break;
             case 2:
-                SpawnEnemy(ObjectsPoolManager.instance.pooledEnemy2.Get());
+                SpawnEnemy(ObjectPool.instance.GetPooledEnemy2());
                 break;
             case 3:
-                SpawnEnemy(ObjectsPoolManager.instance.pooledEnemy3.Get());
+                SpawnEnemy(ObjectPool.instance.GetPooledEnemy3());
                 break;
             default:
                 break;
@@ -311,10 +311,10 @@ public class SpawnManager : MonoBehaviour
         switch (randomObstacle)
         {
             case 1:
-                SpawnObstacle(ObjectsPoolManager.instance.pooledObstacle1.Get());
+                SpawnObstacle(ObjectPool.instance.GetPooledObstacle1());
                 break;
             case 2:
-                SpawnObstacle(ObjectsPoolManager.instance.pooledObstacle2.Get());
+                SpawnObstacle(ObjectPool.instance.GetPooledObstacle2());
                 break;
             default:
                 break;
@@ -328,10 +328,10 @@ public class SpawnManager : MonoBehaviour
         switch (randomPowerup)
         {
             case 1:
-                SpawnPowerup(ObjectsPoolManager.instance.pooledPowerup1.Get());
+                SpawnPowerup(ObjectPool.instance.GetPooledPowerup1());
                 break;
             case 2:
-                SpawnPowerup(ObjectsPoolManager.instance.pooledPowerup2.Get());
+                SpawnPowerup(ObjectPool.instance.GetPooledPowerup2());
                 break;
             default:
                 break;
@@ -344,15 +344,18 @@ public class SpawnManager : MonoBehaviour
         Vector3 randomPos = new Vector3(xRandomPos, yPosEnemy, zPosEnemy);
 
         GameObject enemy = pooledEnemy;
-
+        
         if (enemy == null)
-            return;
+            Debug.Log("SpawnEnemy null");
+        //return;
+        else
+        {
+            enemy.transform.position = randomPos;
+            enemy.transform.rotation = Quaternion.identity;
 
-        enemy.transform.position = randomPos;
-        enemy.transform.rotation = Quaternion.identity;
-
-        enemyCounter++;
-        lastSpawnTimeEnemy = gameDuration;
+            enemyCounter++;
+            lastSpawnTimeEnemy = gameDuration;
+        }
     }
 
     private void SpawnObstacle(GameObject pooledObstacle)

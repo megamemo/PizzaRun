@@ -29,7 +29,7 @@ public class ObstacleMove : MonoBehaviour
 
     private void RestartGame()
     {
-        ObjectPool.instance.ReleaseObstacle(gameObject, id);
+        ObjectsPoolManager.instance.ReleaseObstacle(gameObject, id);
 
         StartGame();
     }
@@ -56,7 +56,7 @@ public class ObstacleMove : MonoBehaviour
 
     private void OnStartMenuStarted(object sender, System.EventArgs e)
     {
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     private void MoveDown(float calculatedSpeed)
@@ -67,7 +67,7 @@ public class ObstacleMove : MonoBehaviour
     private void DeactivateOffScreen()
     {
         if (obstacleRb.position.z < zDestroy)
-            ObjectPool.instance.ReleaseObstacle(gameObject, id);
+            ObjectsPoolManager.instance.ReleaseObstacle(gameObject, id);
     }
 
     private float CalculateSpeed()

@@ -4741,13 +4741,13 @@ MonoBehaviour:
   obstacle2ToPool: {fileID: 9022150239658798997, guid: aeb744cc90182467d99dcc2b93c69378, type: 3}
   powerup1ToPool: {fileID: 1594216750204945755, guid: b43dc5ee0f86b42c39b6cf51fc2bb358, type: 3}
   powerup2ToPool: {fileID: 1594216750204945755, guid: 14263ee0df6644a5ca659125dbe9245a, type: 3}
-  warmupEnemies1: 3
-  warmupEnemies2: 3
-  warmupEnemies3: 3
-  warmupObstacles1: 2
-  warmupObstacles2: 2
-  warmupPoweups1: 1
-  warmupPoweups2: 1
+  warmupEnemy1: 3
+  warmupEnemy2: 3
+  warmupEnemy3: 3
+  warmupObstacle1: 3
+  warmupObstacle2: 3
+  warmupPoweup1: 1
+  warmupPoweup2: 1
 --- !u!1 &1690900396
 GameObject:
   m_ObjectHideFlags: 0

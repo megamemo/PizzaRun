@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+public class ObjectPool1 : MonoBehaviour
 {
-    public static ObjectPool instance { get; private set; }
+    public static ObjectPool1 instance { get; private set; }
 
     public List<GameObject> pooledEnemy1 { get; private set; }
     public List<GameObject> pooledEnemy2 { get; private set; }
@@ -95,86 +95,106 @@ public class ObjectPool : MonoBehaviour
 
     public GameObject GetPooledEnemy1()
     {
-        for (int i = 0; i < pooledEnemy1.Count; i++)
-        {
-            var pooledObject = pooledEnemy1[i];
-            pooledEnemy1.RemoveAt(i);
-            pooledObject.SetActive(true);
-            return pooledObject;
-        }
-        return null;
+        var pooledObject = pooledEnemy1[0];
+        pooledObject.SetActive(true);
+        pooledEnemy1.RemoveAt(0);
+        return pooledObject;
     }
 
     public GameObject GetPooledEnemy2()
     {
-        for (int i = 0; i < pooledEnemy2.Count; i++)
+        var pooledObject = pooledEnemy2[0];
+        pooledObject.SetActive(true);
+        pooledEnemy2.RemoveAt(0);
+        return pooledObject;
+        /*
+        if (pooledEnemy2.Count == 0)
+            return null;
+
+        else
         {
-            var pooledObject = pooledEnemy2[i];
-            pooledEnemy2.RemoveAt(i);
+            var pooledObject = pooledEnemy2[0];
             pooledObject.SetActive(true);
+            pooledEnemy2.RemoveAt(0);
             return pooledObject;
         }
-        return null;
+        */
     }
 
     public GameObject GetPooledEnemy3()
     {
-        for (int i = 0; i < pooledEnemy3.Count; i++)
+        var pooledObject = pooledEnemy3[0];
+        pooledObject.SetActive(true);
+        pooledEnemy3.RemoveAt(0);
+        return pooledObject;
+        /*
+        if (pooledEnemy3.Count == 0)
+            return null;
+
+        else
         {
-            var pooledObject = pooledEnemy3[i];
-            pooledEnemy3.RemoveAt(i);
+            var pooledObject = pooledEnemy3[0];
             pooledObject.SetActive(true);
+            pooledEnemy3.RemoveAt(0);
             return pooledObject;
         }
-        return null;
+        */
     }
 
     public GameObject GetPooledObstacle1()
     {
-        for (int i = 0; i < pooledObstacle1.Count; i++)
+        if (pooledObstacle1.Count == 0)
+            return null;
+
+        else
         {
-            var pooledObject = pooledObstacle1[i];
-            pooledObstacle1.RemoveAt(i);
+            var pooledObject = pooledObstacle1[0];
             pooledObject.SetActive(true);
+            pooledObstacle1.RemoveAt(0);
             return pooledObject;
         }
-        return null;
     }
 
     public GameObject GetPooledObstacle2()
     {
-        for (int i = 0; i < pooledObstacle2.Count; i++)
+        if (pooledObstacle2.Count == 0)
+            return null;
+
+        else
         {
-            var pooledObject = pooledObstacle2[i];
-            pooledObstacle2.RemoveAt(i);
+            var pooledObject = pooledObstacle2[0];
             pooledObject.SetActive(true);
+            pooledObstacle2.RemoveAt(0);
             return pooledObject;
         }
-        return null;
     }
 
     public GameObject GetPooledPowerup1()
     {
-        for (int i = 0; i < pooledPowerup1.Count; i++)
+        if (pooledPowerup1.Count == 0)
+            return null;
+
+        else
         {
-            var pooledObject = pooledPowerup1[i];
-            pooledPowerup1[i].SetActive(true);
-            pooledPowerup1.RemoveAt(i);
+            var pooledObject = pooledPowerup1[0];
+            pooledObject.SetActive(true);
+            pooledPowerup1.RemoveAt(0);
             return pooledObject;
         }
-        return null;
     }
 
     public GameObject GetPooledPowerup2()
     {
-        for (int i = 0; i < pooledPowerup2.Count; i++)
+        if (pooledPowerup2.Count == 0)
+            return null;
+
+        else
         {
-            var pooledObject = pooledPowerup2[i];
-            pooledPowerup2[i].SetActive(true);
-            pooledPowerup2.RemoveAt(i);
+            var pooledObject = pooledPowerup2[0];
+            pooledObject.SetActive(true);
+            pooledPowerup2.RemoveAt(0);
             return pooledObject;
         }
-        return null;
     }
 
     public void ReleaseEnemy(GameObject releasedObject, int id)
@@ -182,7 +202,9 @@ public class ObjectPool : MonoBehaviour
         releasedObject.SetActive(false);
 
         if (id == 1)
+        {
             pooledEnemy1.Add(releasedObject);
+        }
 
         if (id == 2)
             pooledEnemy2.Add(releasedObject);
