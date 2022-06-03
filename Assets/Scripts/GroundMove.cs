@@ -17,23 +17,12 @@ public class GroundMove : MonoBehaviour
         InstanciateGroundMove();
     }
 
-    private void InstanciateGroundMove()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-    }
-
     private void Start()
     {
         cashedTransform = transform;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         MoveDown(CalculateSpeed());
     }
@@ -52,6 +41,17 @@ public class GroundMove : MonoBehaviour
     {
         float speed = startSpeed + startSpeed * (GameManager.instance.level - 1) / speedMultiplier;
         return speed;
+    }
+
+    private void InstanciateGroundMove()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
     }
 
 }

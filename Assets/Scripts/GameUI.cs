@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 using UnityEngine.UI;
@@ -24,7 +23,7 @@ public class GameUI : MonoBehaviour
 
     private void Awake()
     {
-        bestScoreText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
+        SetBestScoreText();    
     }
 
     private void Start()
@@ -35,23 +34,9 @@ public class GameUI : MonoBehaviour
         GameManager.instance.GameOvered += OnGameOvered;
     }
 
-    private void StartGame()
-    {
-        UpdateLevelText();
-
-        pauseMenu.gameObject.SetActive(false);
-        gameOverText.gameObject.SetActive(false);
-        gameOverMenu.gameObject.SetActive(false);
-        pauseButton.gameObject.SetActive(true);
-    }
-
     private void Update()
     {
-        if (GameManager.instance.gameState == GameManager.GameState.GameOver)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-            PauseMenuUI();
+        CheckUserInput();
     }
 
     private void OnDestroy()
@@ -68,46 +53,12 @@ public class GameUI : MonoBehaviour
         UpdateLevelText();
     }
 
-    private void UpdateLevelText()
-    {
-        levelText.text = "LEVEL " + (GameManager.instance.level);
-    }
-
     private void OnGameOvered(object sender, EventArgs e)
     {
         UpdateGameOverScore();
 
         gameOverText.gameObject.SetActive(true);
         pauseButton.gameObject.SetActive(false);
-    }
-
-    private void UpdateGameOverScore()
-    {
-        if (ScoreData.instance.isNewBestScore)
-            bestScoreGOText.text = "NEW RECORD !";
-        else
-            bestScoreGOText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
-
-        yourScoreText.text = "Your Score: " + (int)Math.Floor(GameManager.instance.gameDuration) + " sec, " + GameManager.instance.level + " lvl";
-    }
-
-    private void MenuSound()
-    {
-        menuSound.Play();
-    }
-
-    private void PauseGame()
-    {
-        GameManager.instance.PauseGame();
-
-        pauseMenu.SetActive(true);
-    }
-
-    private void UnPauseGame()
-    {
-        GameManager.instance.UnPauseGame();
-
-        pauseMenu.SetActive(false);
     }
 
     public void PauseMenuUI()
@@ -146,8 +97,8 @@ public class GameUI : MonoBehaviour
         MenuSound();
 
         GameManager.instance.StopGame();
-        GameManager.instance.gameState = GameManager.GameState.StartMenu;
-        SceneLoader.instance.LoadStartMenuScene();
+        GameManager.instance.gameState = GameManager.GameState.MainMenu;
+        SceneLoader.instance.LoadMainMenuScene();
     }
 
     public void ExitGameUI()
@@ -159,6 +110,64 @@ public class GameUI : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    private void StartGame()
+    {
+        UpdateLevelText();
+
+        pauseMenu.gameObject.SetActive(false);
+        gameOverText.gameObject.SetActive(false);
+        gameOverMenu.gameObject.SetActive(false);
+        pauseButton.gameObject.SetActive(true);
+    }
+
+    private void CheckUserInput()
+    {
+        if (GameManager.instance.gameState == GameManager.GameState.GameOver)
+            return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            PauseMenuUI();
+    }
+
+    private void SetBestScoreText()
+    {
+        bestScoreText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
+    }
+
+    private void UpdateLevelText()
+    {
+        levelText.text = "LEVEL " + (GameManager.instance.level);
+    }
+
+    private void UpdateGameOverScore()
+    {
+        if (ScoreData.instance.isNewBestScore)
+            bestScoreGOText.text = "NEW RECORD !";
+        else
+            bestScoreGOText.text = "Best Score: " + ScoreData.instance.bestScoreTime + " sec, " + ScoreData.instance.bestScoreLevel + " lvl";
+
+        yourScoreText.text = "Your Score: " + (int)Math.Floor(GameManager.instance.gameDuration) + " sec, " + GameManager.instance.level + " lvl";
+    }
+
+    private void MenuSound()
+    {
+        menuSound.Play();
+    }
+
+    private void PauseGame()
+    {
+        GameManager.instance.PauseGame();
+
+        pauseMenu.SetActive(true);
+    }
+
+    private void UnPauseGame()
+    {
+        GameManager.instance.UnPauseGame();
+
+        pauseMenu.SetActive(false);
     }
 
 }

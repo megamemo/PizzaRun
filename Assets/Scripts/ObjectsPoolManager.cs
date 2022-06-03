@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
 public class ObjectsPoolManager : MonoBehaviour
 {
     public static ObjectsPoolManager instance { get; private set; }
 
-    public ObjectPool<GameObject> pooledEnemy1 { get; private set; }
-    public ObjectPool<GameObject> pooledEnemy2 { get; private set; }
-    public ObjectPool<GameObject> pooledEnemy3 { get; private set; }
+    private List<GameObject> pooledEnemy1;
+    private List<GameObject> pooledEnemy2;
+    private List<GameObject> pooledEnemy3;
 
-    public ObjectPool<GameObject> pooledObstacle1 { get; private set; }
-    public ObjectPool<GameObject> pooledObstacle2 { get; private set; }
+    private List<GameObject> pooledObstacle1;
+    private List<GameObject> pooledObstacle2;
 
-    public ObjectPool<GameObject> pooledPowerup1 { get; private set; }
-    public ObjectPool<GameObject> pooledPowerup2 { get; private set; }
+    private List<GameObject> pooledPowerup1;
+    private List<GameObject> pooledPowerup2;
 
     [SerializeField] private GameObject enemy1ToPool;
     [SerializeField] private GameObject enemy2ToPool;
@@ -36,49 +35,28 @@ public class ObjectsPoolManager : MonoBehaviour
     [SerializeField] private int warmupPoweup1;
     [SerializeField] private int warmupPoweup2;
 
+
     private void Awake()
     {
         InstanciateObjectsPool();
-    }
-
-    private void InstanciateObjectsPool()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
     }
 
     private void Start()
     {
         PoolObjects();
 
-        GameManager.instance.StartMenuStarted += OnStartMenuStarted;
+        GameManager.instance.MainMenuStarted += OnStartMenuStarted;
     }
 
     private void OnDestroy()
     {
         if (GameManager.instance != null)
-            GameManager.instance.StartMenuStarted += OnStartMenuStarted;
+            GameManager.instance.MainMenuStarted += OnStartMenuStarted;
     }
 
     private void OnStartMenuStarted(object sender, System.EventArgs e)
     {
         DestroyOnExit();
-    }
-
-    private void DestroyOnExit()
-    {
-        pooledEnemy1.Dispose();
-        pooledEnemy2.Dispose();
-        pooledEnemy3.Dispose();
-        pooledObstacle1.Dispose();
-        pooledObstacle2.Dispose();
-        pooledPowerup1.Dispose();
-        pooledPowerup2.Dispose();
     }
 
     private void PoolObjects()
@@ -92,118 +70,257 @@ public class ObjectsPoolManager : MonoBehaviour
         PoolPowerup2();
     }
 
-    public void ReleaseEnemy(GameObject releasedObject, int id)
+    private void DestroyOnExit()
     {
-        if (id == 1)
-            pooledEnemy1.Release(releasedObject);
-
-        if (id == 2)
-            pooledEnemy2.Release(releasedObject);
-
-        if (id == 3)
-            pooledEnemy3.Release(releasedObject);
+        DestroyPooledEnemy1();
+        DestroyPooledEnemy2();
+        DestroyPooledEnemy3();
+        DestroyPooledObstacle1();
+        DestroyPooledObstacle2();
+        DestroyPooledPowerup1();
+        DestroyPooledPowerup2();
     }
 
-    public void ReleaseObstacle(GameObject releasedObject, int id)
+    public GameObject GetPooledEnemy1()
     {
-       if (id == 1)
-            pooledObstacle1.Release(releasedObject);
-
-        if (id == 2)
-            pooledObstacle2.Release(releasedObject);
+        for (int i = 0; i < pooledEnemy1.Count; i++)
+        {
+            if (!pooledEnemy1[i].activeSelf)
+                return pooledEnemy1[i];
+        }
+        return null;
     }
 
-    public void ReleasePowerup(GameObject releasedObject, int id)
+    public GameObject GetPooledEnemy2()
     {
-        if (id == 1)
-            pooledPowerup1.Release(releasedObject);
-
-        if (id == 2)
-            pooledPowerup2.Release(releasedObject);
+        for (int i = 0; i < pooledEnemy2.Count; i++)
+        {
+            if (!pooledEnemy2[i].activeSelf)
+                return pooledEnemy2[i];
+        }
+        return null;
     }
 
-    public void PoolEnemy1()
+    public GameObject GetPooledEnemy3()
     {
-        pooledEnemy1 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(enemy1ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: 3,
-            maxSize: 10);
+        for (int i = 0; i < pooledEnemy3.Count; i++)
+        {
+            if (!pooledEnemy3[i].activeSelf)
+                return pooledEnemy3[i];
+        }
+        return null;
     }
 
-    public void PoolEnemy2()
+    public GameObject GetPooledObstacle1()
     {
-        pooledEnemy2 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(enemy2ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: warmupEnemy2,
-            maxSize: 10);
+        for (int i = 0; i < pooledObstacle1.Count; i++)
+        {
+            if (!pooledObstacle1[i].activeSelf)
+                return pooledObstacle1[i];
+        }
+        return null;
     }
 
-    public void PoolEnemy3()
+    public GameObject GetPooledObstacle2()
     {
-        pooledEnemy3 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(enemy3ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: warmupEnemy3,
-            maxSize: 10);
+        for (int i = 0; i < pooledObstacle2.Count; i++)
+        {
+            if (!pooledObstacle2[i].activeSelf)
+                return pooledObstacle2[i];
+        }
+        return null;
     }
 
-    public void PoolObstacle1()
+    public GameObject GetPooledPowerup1()
     {
-        pooledObstacle1 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(obstacle1ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: warmupObstacle1,
-            maxSize: 10);
+        for (int i = 0; i < pooledPowerup1.Count; i++)
+        {
+            if (!pooledPowerup1[i].activeSelf)
+                return pooledPowerup1[i];
+        }
+        return null;
     }
 
-    public void PoolObstacle2()
+    public GameObject GetPooledPowerup2()
     {
-        pooledObstacle2 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(obstacle2ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: warmupObstacle2,
-            maxSize: 10);
+        for (int i = 0; i < pooledPowerup2.Count; i++)
+        {
+            if (!pooledPowerup2[i].activeSelf)
+                return pooledPowerup2[i];
+        }
+        return null;
     }
 
-    public void PoolPowerup1()
+    private void PoolEnemy1()
     {
-        pooledPowerup1 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(powerup1ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: warmupPoweup1,
-            maxSize: 2);
+        pooledEnemy1 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupEnemy1; i++)
+        {
+            tmp = Instantiate(enemy1ToPool);
+            tmp.SetActive(false);
+            pooledEnemy1.Add(tmp);
+        }
     }
 
-    public void PoolPowerup2()
+    private void PoolEnemy2()
     {
-        pooledPowerup2 = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(powerup2ToPool),
-            actionOnGet: (obj) => obj.SetActive(true),
-            actionOnRelease: (obj) => obj.SetActive(false),
-            actionOnDestroy: (obj) => Destroy(obj),
-            collectionCheck: false,
-            defaultCapacity: warmupPoweup2,
-            maxSize: 2);
+        pooledEnemy2 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupEnemy2; i++)
+        {
+            tmp = Instantiate(enemy2ToPool);
+            tmp.SetActive(false);
+            pooledEnemy2.Add(tmp);
+        }
+    }
+
+    private void PoolEnemy3()
+    {
+        pooledEnemy3 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupEnemy3; i++)
+        {
+            tmp = Instantiate(enemy3ToPool);
+            tmp.SetActive(false);
+            pooledEnemy3.Add(tmp);
+        }
+    }
+
+    private void PoolObstacle1()
+    {
+        pooledObstacle1 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupObstacle1; i++)
+        {
+            tmp = Instantiate(obstacle1ToPool);
+            tmp.SetActive(false);
+            pooledObstacle1.Add(tmp);
+        }
+    }
+
+    private void PoolObstacle2()
+    {
+        pooledObstacle2 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupObstacle2; i++)
+        {
+            tmp = Instantiate(obstacle2ToPool);
+            tmp.SetActive(false);
+            pooledObstacle2.Add(tmp);
+        }
+    }
+
+    private void PoolPowerup1()
+    {
+        pooledPowerup1 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupPoweup1; i++)
+        {
+            tmp = Instantiate(powerup1ToPool);
+            tmp.SetActive(false);
+            pooledPowerup1.Add(tmp);
+        }
+    }
+
+    private void PoolPowerup2()
+    {
+        pooledPowerup2 = new List<GameObject>();
+        GameObject tmp;
+
+        for (int i = 0; i < warmupPoweup2; i++)
+        {
+            tmp = Instantiate(powerup2ToPool);
+            tmp.SetActive(false);
+            pooledPowerup2.Add(tmp);
+        }
+    }
+
+    private void DestroyPooledEnemy1()
+    {
+        for (int i = 0; i < pooledEnemy1.Count; i++)
+        {
+            Destroy(pooledEnemy1[i]);
+        }
+
+        pooledEnemy1.Clear();
+    }
+
+    private void DestroyPooledEnemy2()
+    {
+        for (int i = 0; i < pooledEnemy2.Count; i++)
+        {
+            Destroy(pooledEnemy2[i]);
+        }
+
+        pooledEnemy2.Clear();
+    }
+
+    private void DestroyPooledEnemy3()
+    {
+        for (int i = 0; i < pooledEnemy3.Count; i++)
+        {
+            Destroy(pooledEnemy3[i]);
+        }
+
+        pooledEnemy3.Clear();
+    }
+
+    private void DestroyPooledObstacle1()
+    {
+        for (int i = 0; i < pooledObstacle1.Count; i++)
+        {
+            Destroy(pooledObstacle1[i]);
+        }
+
+        pooledObstacle1.Clear();
+    }
+
+    private void DestroyPooledObstacle2()
+    {
+        for (int i = 0; i < pooledObstacle2.Count; i++)
+        {
+            Destroy(pooledObstacle2[i]);
+        }
+
+        pooledObstacle2.Clear();
+    }
+
+    private void DestroyPooledPowerup1()
+    {
+        for (int i = 0; i < pooledPowerup1.Count; i++)
+        {
+            Destroy(pooledPowerup1[i]);
+        }
+
+        pooledPowerup1.Clear();
+    }
+
+    private void DestroyPooledPowerup2()
+    {
+        for (int i = 0; i < pooledPowerup2.Count; i++)
+        {
+            Destroy(pooledPowerup2[i]);
+        }
+
+        pooledPowerup2.Clear();
+    }
+
+    private void InstanciateObjectsPool()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
     }
 
 }

@@ -10,7 +10,19 @@ public class SceneLoader : MonoBehaviour
     {
         InstanciateSceneLoader();
 
-        SceneManager.LoadScene("StartMenu", LoadSceneMode.Additive);
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Additive);
+    }
+
+    public void LoadMainMenuScene()
+    {
+        SceneManager.UnloadSceneAsync("Game");
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Additive);
+    }
+
+    public void LoadGameScene()
+    {
+        SceneManager.UnloadSceneAsync("MainMenu");
+        SceneManager.LoadScene("Game", LoadSceneMode.Additive);
     }
 
     private void InstanciateSceneLoader()
@@ -22,18 +34,6 @@ public class SceneLoader : MonoBehaviour
         }
 
         instance = this;
-    }
-
-    public void LoadStartMenuScene()
-    {
-        SceneManager.UnloadSceneAsync("Game");
-        SceneManager.LoadScene("StartMenu", LoadSceneMode.Additive);
-    }
-
-    public void LoadGameScene()
-    {
-        SceneManager.UnloadSceneAsync("StartMenu");
-        SceneManager.LoadScene("Game", LoadSceneMode.Additive);
     }
 
 }

@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class EnemyMove : MonoBehaviour
 {
+    [SerializeField] private int id; //Prefabs unique values set in Editor
     [SerializeField] private float startSpeed = 5.0f; //Prefabs unique values set in Editor
     private int speedMultiplier = 5;
     private int zDestroy = -10;
-    [SerializeField] private int id;
 
     private Rigidbody enemyRb;
     [SerializeField] private Animator animatorObject;
@@ -21,14 +21,6 @@ public class EnemyMove : MonoBehaviour
         animator = animatorObject.GetComponent<Animator>();
 
         GameManager.instance.GameRestarted += OnGameRestarted;
-        GameManager.instance.StartMenuStarted += OnStartMenuStarted;
-    }
-
-    private void RestartGame()
-    {
-        ResetAfterCollision();
-
-        ObjectsPoolManager.instance.ReleaseEnemy(gameObject, id);
     }
 
     private void FixedUpdate()
@@ -40,10 +32,7 @@ public class EnemyMove : MonoBehaviour
     private void OnDestroy()
     {
         if (GameManager.instance != null)
-        {
             GameManager.instance.GameRestarted -= OnGameRestarted;
-            GameManager.instance.StartMenuStarted -= OnStartMenuStarted;
-        }
     }
 
     private void OnGameRestarted(object sender, EventArgs e)
@@ -51,25 +40,30 @@ public class EnemyMove : MonoBehaviour
         RestartGame();
     }
 
-    private void OnStartMenuStarted(object sender, System.EventArgs e)
-    {
-        //Destroy(gameObject);
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
-        {
-            moveState = MoveState.Stopped;
-            animator.GetComponent<Animator>().enabled = false;
+            WorkCollisionPlayer();
+    }
 
-            enemyRb.isKinematic = false;
-            enemyRb.MoveRotation(CalculateRandomRotation().normalized);
+    private void WorkCollisionPlayer()
+    {
+        moveState = MoveState.Stopped;
+        animator.GetComponent<Animator>().enabled = false;
 
-            gameObject.tag = "Untagged";
+        enemyRb.isKinematic = false;
+        enemyRb.MoveRotation(CalculateRandomRotation().normalized);
 
-            Invoke("DeactivateOnCollision", 1.0f);
-        }
+        gameObject.tag = "Untagged";
+
+        Invoke("DeactivateOnCollision", 1.0f);
+    }
+
+    private void RestartGame()
+    {
+        ResetAfterCollision();
+
+        gameObject.SetActive(false);
     }
 
     private void MoveDown(float calculatedSpeed)
@@ -85,7 +79,7 @@ public class EnemyMove : MonoBehaviour
     {
         ResetAfterCollision();
 
-        ObjectsPoolManager.instance.ReleaseEnemy(gameObject, id);
+        gameObject.SetActive(false);
     }
 
         private void ResetAfterCollision()
@@ -99,7 +93,7 @@ public class EnemyMove : MonoBehaviour
     private void DeactivateOffScreen()
     {
         if (enemyRb.position.z < zDestroy)
-            ObjectsPoolManager.instance.ReleaseEnemy(gameObject, id);
+            gameObject.SetActive(false);
     }
 
     private Quaternion CalculateRandomRotation()

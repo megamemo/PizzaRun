@@ -3,11 +3,10 @@ using UnityEngine;
 
 public class ObstacleMove : MonoBehaviour
 {
+    [SerializeField] private int id; //Prefabs unique values set in Editor
     private float startSpeed; //Speed is equal to Ground speed
     private int speedMultiplier;
     private int zDestroy = -10;
-    [SerializeField] private int id;
-
 
     private Rigidbody obstacleRb;
 
@@ -17,21 +16,6 @@ public class ObstacleMove : MonoBehaviour
         StartGame();
 
         GameManager.instance.GameRestarted += OnGameRestarted;
-        GameManager.instance.StartMenuStarted += OnStartMenuStarted;
-    }
-
-    private void StartGame()
-    {
-        obstacleRb = GetComponent<Rigidbody>();
-        startSpeed = GroundMove.instance.startSpeed;
-        speedMultiplier = GroundMove.instance.speedMultiplier;
-    }
-
-    private void RestartGame()
-    {
-        ObjectsPoolManager.instance.ReleaseObstacle(gameObject, id);
-
-        StartGame();
     }
 
     private void FixedUpdate()
@@ -43,10 +27,7 @@ public class ObstacleMove : MonoBehaviour
     private void OnDestroy()
     {
         if (GameManager.instance != null)
-        {
             GameManager.instance.GameRestarted -= OnGameRestarted;
-            GameManager.instance.StartMenuStarted -= OnStartMenuStarted;
-        }
     }
 
     private void OnGameRestarted(object sender, EventArgs e)
@@ -54,9 +35,18 @@ public class ObstacleMove : MonoBehaviour
         RestartGame();
     }
 
-    private void OnStartMenuStarted(object sender, System.EventArgs e)
+    private void StartGame()
     {
-        //Destroy(gameObject);
+        obstacleRb = GetComponent<Rigidbody>();
+        startSpeed = GroundMove.instance.startSpeed;
+        speedMultiplier = GroundMove.instance.speedMultiplier;
+    }
+
+    private void RestartGame()
+    {
+        gameObject.SetActive(false);
+
+        StartGame();
     }
 
     private void MoveDown(float calculatedSpeed)
@@ -67,7 +57,7 @@ public class ObstacleMove : MonoBehaviour
     private void DeactivateOffScreen()
     {
         if (obstacleRb.position.z < zDestroy)
-            ObjectsPoolManager.instance.ReleaseObstacle(gameObject, id);
+            gameObject.SetActive(false);
     }
 
     private float CalculateSpeed()

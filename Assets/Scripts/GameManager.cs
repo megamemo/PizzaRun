@@ -6,12 +6,14 @@ public class GameManager : MonoBehaviour
     public static GameManager instance { get; private set; }
 
     public int level { get; private set; }
+
     private float gameStartTime;
     public float gameDuration { get; private set; }
     private float levelDuration = 30.0f; //Designed duration is 30.0f
     private float TimeScale { get => Time.timeScale; set => Time.timeScale = value; }
-    public GameState gameState;
+
     public TimeState timeState;
+    public GameState gameState;
 
     [SerializeField] private AudioSource gameMusic;
     [SerializeField] private AudioSource menuMusic;
@@ -20,38 +22,13 @@ public class GameManager : MonoBehaviour
 
     public event EventHandler GameRestarted;
     public event EventHandler LevelChanged;
-    public event EventHandler StartMenuStarted;
+    public event EventHandler MainMenuStarted;
     public event EventHandler GameOvered;
 
 
     private void Awake()
     {
         InstanciateGameManager();
-    }
-
-    private void InstanciateGameManager()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-    }
-    
-    public void StartGame()
-    {
-        gameState = GameState.Play;
-        SetLevel(1);
-        TimeScale = 1;
-        WorkSlowmotion(TimeState.Normal);
-        gameStartTime = Time.time;
-
-        startSound.Play();
-        menuMusic.Stop();
-        gameMusic.Play();
-        gameMusic.volume = 1;
     }
 
     private void Update()
@@ -63,41 +40,55 @@ public class GameManager : MonoBehaviour
     private float GetGameDuration()
     {
         if (gameState == GameState.Play)
-        {
             gameDuration = Time.time - gameStartTime;
-        }
+
         return gameDuration;
     }
 
     private void ProceedToNextLevel()
     {
-        if (gameState == GameState.Play)
-        {
-            if (gameDuration >= levelDuration * level)
-            SetLevel(level + 1);    
-        }
+        if (gameDuration >= levelDuration * level && gameState == GameState.Play)
+            SetLevel(level + 1);
     }
 
     private void SetLevel(int value)
     {
         level = value;
+
         LevelChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void GameOver()
     {
         gameState = GameState.GameOver;
-        GameOvered?.Invoke(this, EventArgs.Empty);
         gameMusic.Stop();
         gameOverSound.Play();
+
         GetGameDuration();
+
+        GameOvered?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void StartGame()
+    {
+        gameStartTime = Time.time;
+        gameState = GameState.Play;
+        TimeScale = 1;
+
+        SetLevel(0);
+        WorkSlowmotion(TimeState.Normal);
+
+        startSound.Play();
+        menuMusic.Stop();
+        gameMusic.Play();
+        gameMusic.volume = 1;
     }
 
     public void RestartGame()
     {
+        gameDuration = 0;
         gameMusic.Stop();
         gameOverSound.Stop();
-        gameDuration = 0;
 
         ResetGame();
         StartGame();
@@ -135,13 +126,12 @@ public class GameManager : MonoBehaviour
         GameRestarted?.Invoke(this, EventArgs.Empty);
     }
 
-    public void SetStartMenuState()
+    public void SetMainMenuState()
     {
-        gameState = GameState.StartMenu;
-
-        StartMenuStarted?.Invoke(this, EventArgs.Empty);
-
+        gameState = GameState.MainMenu;
         menuMusic.Play();
+
+        MainMenuStarted?.Invoke(this, EventArgs.Empty);
     }
 
     public void WorkSlowmotion(TimeState state)
@@ -167,18 +157,29 @@ public class GameManager : MonoBehaviour
         gameMusic.volume = 1.0f;
     }
 
-    public enum GameState
+    private void InstanciateGameManager()
     {
-        StartMenu,
-        Play,
-        Pause,
-        GameOver
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
     }
 
     public enum TimeState
     {
         Normal,
         SlowMotion
+    }
+
+    public enum GameState
+    {
+        MainMenu,
+        Play,
+        Pause,
+        GameOver
     }
 
 }

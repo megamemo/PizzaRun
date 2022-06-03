@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class ScoreData : MonoBehaviour
 {
     public static ScoreData instance { get; private set; }
+
     public int bestScoreTime { get; private set; }
     public int bestScoreLevel { get; private set; }
     public bool isNewBestScore { get; private set; }
@@ -35,19 +36,6 @@ public class ScoreData : MonoBehaviour
     private void OnGameOvered(object sender, EventArgs e)
     {
         CheckBestScore();
-    }
-
-    private void InstanciateScoreData()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-    
-        LoadDataFile();
     }
 
     private void CheckBestScore()
@@ -94,6 +82,19 @@ public class ScoreData : MonoBehaviour
         SaveDataFile();
     }
 
+    private void InstanciateScoreData()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+    
+        LoadDataFile();
+    }
+
     private sealed class InverseCompare : IComparer<int>
     {
         public int Compare(int x, int y)
@@ -117,6 +118,7 @@ public class ScoreData : MonoBehaviour
         data.scoreLevels = scoreLevels;
 
         string json = JsonUtility.ToJson(data);
+
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
@@ -126,6 +128,7 @@ public class ScoreData : MonoBehaviour
         scoreLevels = new int[scoreArrayLength];
 
         string path = Application.persistentDataPath + "/savefile.json";
+
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);

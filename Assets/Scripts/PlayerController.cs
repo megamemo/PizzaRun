@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     private int topBound = 13;
     private int bottomBound = 5;
     public int playerHealth { get; private set; }
-    private Vector3 startPos = new Vector3(0, 0.46f, 0);
+    private Vector3 startPos = new Vector3(0.0f, 0.46f, 0.0f);
     private float collisionTime;
 
     [SerializeField] private GameObject spawnObject;
@@ -38,34 +38,11 @@ public class PlayerController : MonoBehaviour
         InstanciatePlayerController();
     }
 
-    private void InstanciatePlayerController()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-    }
-
     private void Start()
     {
         StartGame();
 
         GameManager.instance.GameRestarted += OnGameRestarted;
-    }
-
-    private void StartGame()
-    {
-        playerRb = GetComponent<Rigidbody>();
-        spawnManager = spawnObject.GetComponent<SpawnManager>();
-
-        playerHealth = 3;
-        collisionTime = 0.0f;
-
-        SlowmotionLightOff();
-        HealthUpdate();
     }
 
     private void FixedUpdate()
@@ -85,55 +62,14 @@ public class PlayerController : MonoBehaviour
     {
         CancelInvoke();
         StartGame();
+
         playerRb.position = startPos;
-    }
-
-    private void MovePlayer()
-    {
-        if (GameManager.instance.gameState != GameManager.GameState.GameOver)
-        {
-            float verticalInput = Input.GetAxis("Vertical");
-            float horizontalInput = Input.GetAxis("Horizontal");
-            bool jumpInput = Input.GetKeyDown(KeyCode.Space);
-
-            if (!Mathf.Approximately(verticalInput, 0))
-                playerRb.position += Vector3.forward * verticalInput * speed * Time.deltaTime;
-
-            if (!Mathf.Approximately(horizontalInput, 0))
-                playerRb.position += Vector3.right * horizontalInput * speed * Time.deltaTime;
-
-            if (playerRb.position.y < 0.5f)
-            {
-                if (jumpInput)
-                {
-                    playerRb.position += Vector3.up * jumpForce * Time.deltaTime;
-                    jumpSound.Play();
-                }
-            }
-        }
-    }
-
-    private void ConstrainPlayerMovement()
-    {
-        if (playerRb.position.z > topBound)
-            playerRb.position = new Vector3(playerRb.position.x, playerRb.position.y, topBound);
-
-        if (playerRb.position.z < -bottomBound)
-            playerRb.position = new Vector3(playerRb.position.x, playerRb.position.y, -bottomBound);
-    }
-
-    private void ConstrainPlayerOnCollision()
-    {
-        if (GameManager.instance.gameDuration - collisionTime < 0.6f)
-            playerRb.position = new Vector3(playerRb.position.x, 0.46f, playerRb.position.z);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Enemy"))
-        {
             WorkCollisionEnemy();
-        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -226,6 +162,18 @@ public class PlayerController : MonoBehaviour
         GameManager.instance.WorkSlowmotion(GameManager.TimeState.Normal);
     }
 
+    private void StartGame()
+    {
+        playerRb = GetComponent<Rigidbody>();
+        spawnManager = spawnObject.GetComponent<SpawnManager>();
+
+        playerHealth = 3;
+        collisionTime = 0.0f;
+
+        SlowmotionLightOff();
+        HealthUpdate();
+    }
+
     private void HealthUpdate()
     {
         if (playerHealth == 3)
@@ -255,6 +203,46 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void MovePlayer()
+    {
+        if (GameManager.instance.gameState == GameManager.GameState.GameOver)
+            return;
+
+        float verticalInput = Input.GetAxis("Vertical");
+        float horizontalInput = Input.GetAxis("Horizontal");
+        bool jumpInput = Input.GetKeyDown(KeyCode.Space);
+
+        if (!Mathf.Approximately(verticalInput, 0.0f))
+            playerRb.position += Vector3.forward * verticalInput * speed * Time.deltaTime;
+
+        if (!Mathf.Approximately(horizontalInput, 0.0f))
+            playerRb.position += Vector3.right * horizontalInput * speed * Time.deltaTime;
+
+        if (playerRb.position.y < 0.5f)
+        {
+            if (jumpInput)
+            {
+                playerRb.position += Vector3.up * jumpForce * Time.deltaTime;
+                jumpSound.Play();
+            }
+        }
+    }
+
+    private void ConstrainPlayerMovement()
+    {
+        if (playerRb.position.z > topBound)
+            playerRb.position = new Vector3(playerRb.position.x, playerRb.position.y, topBound);
+
+        if (playerRb.position.z < -bottomBound)
+            playerRb.position = new Vector3(playerRb.position.x, playerRb.position.y, -bottomBound);
+    }
+
+    private void ConstrainPlayerOnCollision()
+    {
+        if (GameManager.instance.gameDuration - collisionTime < 0.6f)
+            playerRb.position = new Vector3(playerRb.position.x, 0.46f, playerRb.position.z);
+    }
+
     private void DamageLightOff()
     {
         damageLight.gameObject.SetActive(false);
@@ -268,6 +256,17 @@ public class PlayerController : MonoBehaviour
     private void SlowmotionLightOff()
     {
         slowmotionLight.gameObject.SetActive(false);
+    }
+
+    private void InstanciatePlayerController()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
     }
 
 }

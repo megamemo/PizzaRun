@@ -1,10 +1,9 @@
-using System;
-using System.Collections;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager instance { get; private set; }
+
     [SerializeField] private GameObject healthObject;
     private GameObject pooledHealth;
 
@@ -27,14 +26,14 @@ public class SpawnManager : MonoBehaviour
     private float startDelayHealth;
     private float startDelayPowerup;
 
+    private float repeatDelayEnemy;
     private float repeatDelayEnemyMax = 3.5f;
     private float repeatDelayEnemyMin = 0.5f;
-    private float repeatDelayEnemy;
     private int repeatDelayEnemyMultipliler = 15;
 
+    private float repeatDelayObstacle;
     private float repeatDelayObstacleMax = 10.0f;
     private float repeatDelayObstacleMin = 2.0f;
-    private float repeatDelayObstacle;
     private int repeatDelayObstacleMultipliler = 5;
 
     private int repeatDelayHealth = 20;
@@ -42,34 +41,25 @@ public class SpawnManager : MonoBehaviour
 
     private int enemyCounter;
     private int obstacleCounter;
+
+    private int healthCounter;
     private int maxHealthLimit = 1;
+
+    private int powerupCounter;
     private int maxPowerupLimit = 1;
-    [HideInInspector] public int healthCounter;
-    [HideInInspector] public int powerupCounter;
 
     private float gameDuration;
     private float lastSpawnTimeEnemy;
     private float lastSpawnTimeObstacle;
     public float lastSpawnTimePowerup { get; private set; }
 
-    public HealthState healthState { get; private set; }
-    public PowerupState powerupState { get; private set; }
+    private HealthState healthState;
+    private PowerupState powerupState;
 
 
     private void Awake()
     {
         InstanciateSpawnManager();
-    }
-
-    private void InstanciateSpawnManager()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
     }
 
     private void Start()
@@ -79,9 +69,57 @@ public class SpawnManager : MonoBehaviour
 
         GameManager.instance.GameRestarted += OnGameRestarted;
         GameManager.instance.LevelChanged += OnLevelChanged;
-        GameManager.instance.StartMenuStarted += OnStartMenuStarted;
+        GameManager.instance.MainMenuStarted += OnMainMenuStarted;
         PlayerController.instance.HealthIncreased += OnHealthIncreased;
         PlayerController.instance.HealthMaxed += OnHealthMaxed;
+    }
+
+    private void Update()
+    {
+        gameDuration = GetGameDuration();
+
+        RepeatSpawnEnemy();
+        RepeatSpawnObstacle();
+        RepeatSpawnHealth();
+        RepeatSpawnPowerup();
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.GameRestarted -= OnGameRestarted;
+            GameManager.instance.LevelChanged -= OnLevelChanged;
+            PlayerController.instance.HealthIncreased -= OnHealthIncreased;
+            PlayerController.instance.HealthMaxed -= OnHealthMaxed;
+        }
+    }
+
+    private void OnGameRestarted(object sender, System.EventArgs e)
+    {
+        StartGame();
+        pooledHealth.SetActive(false);
+    }
+
+    private void OnLevelChanged(object sender, System.EventArgs e)
+    {
+        CalculateRepeatDelayEnemy();
+        CalculateRepeatDelayObstacle();
+    }
+
+    private void OnMainMenuStarted(object sender, System.EventArgs e)
+    {
+        Destroy(pooledHealth);
+    }
+
+    private void OnHealthIncreased(object sender, System.EventArgs e)
+    {
+        RepeatSpawningHealth();
+    }
+
+    private void OnHealthMaxed(object sender, System.EventArgs e)
+    {
+        StopSpawningHealth();
     }
 
     private void StartGame()
@@ -99,20 +137,19 @@ public class SpawnManager : MonoBehaviour
         repeatDelayObstacle = repeatDelayObstacleMax;
 
         healthState = HealthState.None;
-        startDelayHealth = 0;
+        startDelayHealth = 0.0f;
 
         powerupState = PowerupState.ReadyToSpawn;
-        startDelayPowerup = 0;
+        startDelayPowerup = 0.0f;
     }
 
-    private void Update()
+    private void PoolHealth()
     {
-        gameDuration = GetGameDuration();
+        Vector3 pos = new Vector3(0.0f, yPosPowerup, zPosEnemy);
 
-        RepeatSpawnEnemy();
-        RepeatSpawnObstacle();
-        RepeatSpawnHealth();
-        RepeatSpawnPowerup();
+        pooledHealth = Instantiate(healthObject, pos, healthObject.gameObject.transform.rotation);
+
+        pooledHealth.SetActive(false);
     }
 
     private float GetGameDuration()
@@ -120,15 +157,6 @@ public class SpawnManager : MonoBehaviour
         float gameDuration = GameManager.instance.gameDuration;
 
         return gameDuration;
-    }
-
-    private void PoolHealth()
-    {
-        Vector3 pos = new Vector3(0, yPosPowerup, zPosEnemy);
-
-        pooledHealth = Instantiate(healthObject, pos, healthObject.gameObject.transform.rotation);
-
-        pooledHealth.SetActive(false);
     }
 
     private void RepeatSpawnEnemy()
@@ -143,28 +171,16 @@ public class SpawnManager : MonoBehaviour
                     SelectRandomEnemy();
         }
     }
-    /*
-    private void RepeatSpawnEnemy()
-    {
-        if (GameManager.instance.gameState == GameManager.GameState.Play)
-        {
-            if (gameDuration - lastSpawnTimeEnemy < repeatDelayEnemyMin)
-                return;
-
-            if (gameDuration >= startDelayEnemy + repeatDelayEnemy * enemyCounter)
-                SelectRandomEnemy();
-        }
-    }
-    */
+    
     private void RepeatSpawnObstacle()
     {
         if (GameManager.instance.gameState == GameManager.GameState.Play)
         {
-            if (gameDuration - lastSpawnTimeObstacle < repeatDelayObstacleMin)
-                return;
-
-            if (gameDuration >= startDelayObstacle + repeatDelayObstacle * obstacleCounter)
+            if (gameDuration - lastSpawnTimeObstacle >= repeatDelayObstacle)
                 SelectRandomObstacle();
+            else
+                if (gameDuration - startDelayObstacle >= 0 && obstacleCounter == 0)
+                    SelectRandomObstacle();
         }
     }
 
@@ -202,42 +218,32 @@ public class SpawnManager : MonoBehaviour
         SetStartDelayHealth();
     }
 
-    public void DeactivateHealth()
+    private void RepeatSpawningHealth()
     {
-        pooledHealth.SetActive(false);
-
         healthState = HealthState.ReadyToSpawn;
 
-        if (healthCounter > 0)
-            healthCounter--;
-
         SetStartDelayHealth();
+
+        DeactivateHealth();
     }
 
-    public void StopSpawningHealth()
+    private void StopSpawningHealth()
+    {
+        healthState = HealthState.None;
+
+        DeactivateHealth();
+    }
+
+    private void DeactivateHealth()
     {
         pooledHealth.SetActive(false);
 
-        healthState = HealthState.None;
-
         if (healthCounter > 0)
             healthCounter--;
-    }
-
-    public void StartSpawningPowerup()
-    {
-        if (powerupState == PowerupState.AlreadySpawning)
-            return;
-
-        powerupState = PowerupState.ReadyToSpawn;
-
-        SetStartDelayPowerup();
     }
 
     public void DeactivatePowerup(GameObject powerup, int id)
     {
-        ObjectsPoolManager.instance.ReleasePowerup(powerup, id);
-
         powerupState = PowerupState.ReadyToSpawn;
 
         if (powerupCounter > 0)
@@ -246,58 +252,20 @@ public class SpawnManager : MonoBehaviour
         SetStartDelayPowerup();
     }
 
-    private void OnDestroy()
-    {
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.GameRestarted -= OnGameRestarted;
-            GameManager.instance.LevelChanged -= OnLevelChanged;
-            PlayerController.instance.HealthIncreased -= OnHealthIncreased;
-            PlayerController.instance.HealthMaxed -= OnHealthMaxed;
-        }
-    }
-
-    private void OnGameRestarted(object sender, System.EventArgs e)
-    {
-        StartGame();
-        pooledHealth.SetActive(false);
-    }
-
-    private void OnLevelChanged(object sender, System.EventArgs e)
-    {
-        CalculateRepeatDelayEnemy();
-        CalculateRepeatDelayObstacle();
-    }
-
-    private void OnStartMenuStarted(object sender, System.EventArgs e)
-    {
-        Destroy(pooledHealth);
-    }
-
-    private void OnHealthIncreased(object sender, System.EventArgs e)
-    {
-        DeactivateHealth();
-    }
-
-    private void OnHealthMaxed(object sender, System.EventArgs e)
-    {
-        StopSpawningHealth();
-    }
-
     private void SelectRandomEnemy()
     {
-        randomEnemy = UnityEngine.Random.Range(1, randomEnemiesCount + 1);
+        randomEnemy = Random.Range(1, randomEnemiesCount + 1);
 
         switch (randomEnemy)
         {
             case 1:
-                SpawnEnemy(ObjectsPoolManager.instance.pooledEnemy1.Get());
+                SpawnEnemy(ObjectsPoolManager.instance.GetPooledEnemy1());
                 break;
             case 2:
-                SpawnEnemy(ObjectsPoolManager.instance.pooledEnemy2.Get());
+                SpawnEnemy(ObjectsPoolManager.instance.GetPooledEnemy2());
                 break;
             case 3:
-                SpawnEnemy(ObjectsPoolManager.instance.pooledEnemy3.Get());
+                SpawnEnemy(ObjectsPoolManager.instance.GetPooledEnemy3());
                 break;
             default:
                 break;
@@ -306,15 +274,15 @@ public class SpawnManager : MonoBehaviour
 
     private void SelectRandomObstacle()
     {
-        randomObstacle = UnityEngine.Random.Range(1, randomObstaclesCount + 1);
+        randomObstacle = Random.Range(1, randomObstaclesCount + 1);
 
         switch (randomObstacle)
         {
             case 1:
-                SpawnObstacle(ObjectsPoolManager.instance.pooledObstacle1.Get());
+                SpawnObstacle(ObjectsPoolManager.instance.GetPooledObstacle1());
                 break;
             case 2:
-                SpawnObstacle(ObjectsPoolManager.instance.pooledObstacle2.Get());
+                SpawnObstacle(ObjectsPoolManager.instance.GetPooledObstacle2());
                 break;
             default:
                 break;
@@ -323,15 +291,15 @@ public class SpawnManager : MonoBehaviour
 
     private void SelectRandomPowerup()
     {
-        randomPowerup = UnityEngine.Random.Range(1, randomPowerupCount + 1);
+        randomPowerup = Random.Range(1, randomPowerupCount + 1);
 
         switch (randomPowerup)
         {
             case 1:
-                SpawnPowerup(ObjectsPoolManager.instance.pooledPowerup1.Get());
+                SpawnPowerup(ObjectsPoolManager.instance.GetPooledPowerup1());
                 break;
             case 2:
-                SpawnPowerup(ObjectsPoolManager.instance.pooledPowerup2.Get());
+                SpawnPowerup(ObjectsPoolManager.instance.GetPooledPowerup2());
                 break;
             default:
                 break;
@@ -340,16 +308,19 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnEnemy(GameObject pooledEnemy)
     {
-        float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
+        float xRandomPos = Random.Range(-xRange, xRange);
         Vector3 randomPos = new Vector3(xRandomPos, yPosEnemy, zPosEnemy);
 
         GameObject enemy = pooledEnemy;
 
         if (enemy == null)
-            return;
+            Debug.Log("enem null");
+        //return;
 
         enemy.transform.position = randomPos;
         enemy.transform.rotation = Quaternion.identity;
+
+        enemy.SetActive(true);
 
         enemyCounter++;
         lastSpawnTimeEnemy = gameDuration;
@@ -357,16 +328,19 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnObstacle(GameObject pooledObstacle)
     {
-        float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
+        float xRandomPos = Random.Range(-xRange, xRange);
         Vector3 randomPos = new Vector3(xRandomPos, yPosEnemy, zPosEnemy);
 
         GameObject obstacle = pooledObstacle;
 
         if (obstacle == null)
-            return;
+            Debug.Log("Obst null");
+            //return;
 
         obstacle.transform.position = randomPos;
         obstacle.transform.rotation = Quaternion.identity;
+
+        obstacle.SetActive(true);
 
         obstacleCounter++;
         lastSpawnTimeObstacle = gameDuration;
@@ -376,13 +350,13 @@ public class SpawnManager : MonoBehaviour
     {
         if (healthCounter < maxHealthLimit)
         {
-            float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
-            float zRandomPos = UnityEngine.Random.Range(zRangePowerupMin, zRangePowerupMax);
+            float xRandomPos = Random.Range(-xRange, xRange);
+            float zRandomPos = Random.Range(zRangePowerupMin, zRangePowerupMax);
             Vector3 randomPos = new Vector3(xRandomPos, yPosPowerup, zRandomPos);
 
-            pooledHealth.SetActive(true);
-
             pooledHealth.transform.position = randomPos;
+
+            pooledHealth.SetActive(true);
 
             healthCounter++;
             healthState = HealthState.ReadyToSpawn;
@@ -393,8 +367,8 @@ public class SpawnManager : MonoBehaviour
     {
         if (powerupCounter < maxPowerupLimit)
         {
-            float xRandomPos = UnityEngine.Random.Range(-xRange, xRange);
-            float zRandomPos = UnityEngine.Random.Range(zRangePowerupMin, zRangePowerupMax);
+            float xRandomPos = Random.Range(-xRange, xRange);
+            float zRandomPos = Random.Range(zRangePowerupMin, zRangePowerupMax);
             Vector3 randomPos = new Vector3(xRandomPos, yPosPowerup, zRandomPos);
 
             GameObject powerup = pooledPowerup;
@@ -405,11 +379,11 @@ public class SpawnManager : MonoBehaviour
             powerup.transform.position = randomPos;
             powerup.transform.rotation = Quaternion.identity;
 
+            powerup.SetActive(true);
+
             powerupCounter++;
-            powerupState = PowerupState.ReadyToSpawn;
-
             lastSpawnTimePowerup = gameDuration;
-
+            powerupState = PowerupState.ReadyToSpawn;
         }
     }
 
@@ -429,24 +403,35 @@ public class SpawnManager : MonoBehaviour
             repeatDelayObstacle = repeatDelayObstacleMin;
     }
 
-    public void SetStartDelayHealth()
+    private void SetStartDelayHealth()
     {
         startDelayHealth = gameDuration;
     }
 
-    public void SetStartDelayPowerup()
+    private void SetStartDelayPowerup()
     {
         startDelayPowerup = gameDuration;
     }
 
-    public enum HealthState
+    private void InstanciateSpawnManager()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+    }
+
+    private enum HealthState
     {
         None,
         ReadyToSpawn,
         AlreadySpawning
     }
 
-    public enum PowerupState
+    private enum PowerupState
     {
         None,
         ReadyToSpawn,
